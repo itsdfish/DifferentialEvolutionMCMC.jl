@@ -1,5 +1,5 @@
 cd(@__DIR__)
-using AdvancedPS, Random, Distributions
+using DifferentialEvolutionMCMC, Random, Distributions
 
 Random.seed!(50514)
 

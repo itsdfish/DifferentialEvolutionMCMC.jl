@@ -1,5 +1,5 @@
 cd(@__DIR__)
-using AdvancedPS, Random, Parameters, Distributions
+using DifferentialEvolutionMCMC, Random, Parameters, Distributions
 
 priors = (
     θ=(Beta(1, 1),),

@@ -6,7 +6,7 @@
 
 
 cd(@__DIR__)
-using AdvancedPS, Random, StatsBase, Distributions
+using DifferentialEvolutionMCMC, Random, StatsBase, Distributions
 
 N = 30
 # Parameters for each cluster, we assume that each cluster is Gaussian distributed in the example.
