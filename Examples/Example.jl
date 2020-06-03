@@ -22,5 +22,5 @@ model = DEModel(priors=priors, model=loglike)
 
 de = DE(bounds=bounds, burnin=1000, priors=priors, progress=true)
 n_iter = 2000
-chains = psample(model, de, n_iter)
+chains = sample(model, de, MCMCThreads(), n_iter, progress=true)
 println(chains)

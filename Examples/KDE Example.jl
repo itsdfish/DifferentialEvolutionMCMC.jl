@@ -22,7 +22,7 @@ data = rand(Normal(0.0, 1.0), 50)
 
 model = DEModel(priors=priors, model=x->loglike(x..., data))
 
-de = DE(bounds=bounds, visualize=false, burnin=1000, priors=priors, progress=true)
+de = DE(bounds=bounds, burnin=1000, priors=priors)
 n_iter = 2000
-chains = sample(model, de, n_iter)
+chains = sample(model, de, MCMCThreads(), n_iter, progress=true)
 println(chains)
