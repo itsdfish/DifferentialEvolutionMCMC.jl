@@ -42,7 +42,11 @@ function accept(proposal, current)
     rand() <= p ? (return true) : (return false)
 end
 
-
+"""
+Checks whether parameter is within lower and upper bounds
+* `b`: boundary (lowerbound,upperbound)
+* `θ`: a parameter value
+"""
 in_bounds(b, θ::Real) = θ >= b[1] && θ <= b[2]
 in_bounds(b, θ::Vector{<:Real}) = all(x->in_bounds(b, x), θ)
 
@@ -58,29 +62,6 @@ function compute_posterior!(de, model, proposal)
         proposal.weight = priorlike(model, proposal) + model.model(proposal.Θ)
     else
         proposal.weight = -Inf
-    end
-    return nothing
-end
-"""
-replaces values outside of bounds with the boundary
-* `b`: boundary (lowerbound,upperbound)
-* `θ`: a parameter value
-"""
-function enforce_bounds(b, θ::Real)
-    θ < b[1] ? (return b[1]) : nothing
-    θ > b[2] ? (return b[2]) : nothing
-    return θ
-end
-
-function enforce_bounds(b, Θ)
-    map(θ->enforce_bounds(b, θ), Θ)
-end
-
-function enforce_bounds!(bounds, p)
-    i = 0
-    for (b,θ) in zip(bounds, p.Θ)
-        i += 1
-        p.Θ[i] = enforce_bounds(b, θ)
     end
     return nothing
 end

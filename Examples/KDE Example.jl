@@ -6,7 +6,6 @@ function loglike(μ, σ, data)
     simdata = rand(Normal(μ, σ), 10_000)
     kd = kernel(simdata)
     dist = InterpKDE(kd)
-    #println("proposal: ",μ," ",σ)
     like = max.(1e-10, pdf(dist, data))
     return sum(log.(like))
 end

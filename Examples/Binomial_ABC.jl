@@ -1,5 +1,6 @@
 cd(@__DIR__)
 using DifferentialEvolutionMCMC, Random, Parameters, Distributions
+Random.seed!(88484)
 
 priors = (
     θ=(Beta(1, 1),),
@@ -26,6 +27,6 @@ loglike(θ) = loglike(θ..., data)
 model = DEModel(priors=priors, model=loglike)
 
 de = DE(bounds=bounds, burnin=1000, priors=priors, σ=.01)
-n_iter = 20000
+n_iter = 2000
 @elapsed chains = sample(model, de, MCMCThreads(), n_iter, progress=true)
 println(chains)
