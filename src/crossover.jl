@@ -9,7 +9,7 @@ function crossover!(model, de, group)
         # generate the proposal
         proposal = generate_proposal(de, pt, group)
         # compute the weight of the proposal: prior loglikelihood + data loglikelihood
-        proposal.weight = priorlike(model, proposal) + model.model(proposal.Θ)
+        compute_posterior!(de, model, proposal)
         # accept proposal according to Metropolis-Hastings rule
         update_particle!(de, pt, proposal)
     end
@@ -39,8 +39,6 @@ function generate_proposal(de, Pt, group)
     b = Uniform(-de.ϵ, de.ϵ)
     # compute proposal value
     Θp = Pt + γ₁*(Pm - Pn) + γ₂*(Pb - Pt) + b
-    # enforce the parameter boundaries
-    enforce_bounds!(de.bounds, Θp)
     # reset each parameter to previous value with probability (1-κ)
     recombination!(de, Pt, Θp)
     return Θp

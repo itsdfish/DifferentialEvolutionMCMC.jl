@@ -10,10 +10,8 @@ function mutation!(model, de, group)
     for pt in group
         # add noise to each parameter
         proposal = pt + noise
-        # ensure that bounds are respected
-        enforce_bounds!(bounds, proposal)
         # add Loglikelihood of prior to particle weight
-        proposal.weight = priorlike(model, proposal) + model.model(proposal.Θ)
+        compute_posterior!(de, model, proposal)
         # update whether proposal was accepted and add proposal if accepted
         update_particle!(de, pt, proposal)
     end

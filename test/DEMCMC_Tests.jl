@@ -78,7 +78,7 @@ end
 @testset "LNR" begin
     using DifferentialEvolutionMCMC, Test, Random, Turing, Parameters, Distributions
     import DifferentialEvolutionMCMC: select_groups, select_particles, shift_particles!, sample_init
-    Random.seed!(56392)
+    Random.seed!(59391)
     include("LogNormalRace.jl")
 
     dist = LNR(μ=[-2.,-2.,-3.,-3], σ=1.0, ϕ=.5)

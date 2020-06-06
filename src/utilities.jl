@@ -42,6 +42,25 @@ function accept(proposal, current)
     rand() <= p ? (return true) : (return false)
 end
 
+
+in_bounds(b, θ::Real) = θ >= b[1] && θ <= b[2]
+in_bounds(b, θ::Vector{<:Real}) = all(x->in_bounds(b, x), θ)
+
+function in_bounds(de::DE, model)
+    for (b,θ) in zip(de.bounds,model.Θ)
+        !in_bounds(b, θ) ? (return false) : nothing
+    end
+    return true
+end
+
+function compute_posterior!(de, model, proposal)
+    if in_bounds(de, proposal)
+        proposal.weight = priorlike(model, proposal) + model.model(proposal.Θ)
+    else
+        proposal.weight = -Inf
+    end
+    return nothing
+end
 """
 replaces values outside of bounds with the boundary
 * `b`: boundary (lowerbound,upperbound)
