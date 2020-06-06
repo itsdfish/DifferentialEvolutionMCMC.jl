@@ -134,7 +134,8 @@ end
 @testset "Migration" begin
     using DifferentialEvolutionMCMC, Test, Random, Turing, Parameters, Distributions
     import DifferentialEvolutionMCMC: select_groups, select_particles, shift_particles!, sample_init
-    Random.seed!(0451)
+
+    Random.seed!(0451) #Random.seed!(459)
     priors = (
         θ=(Beta(1,1),),
     )
@@ -164,7 +165,7 @@ end
     for (i,c,p,cp) in zip(gidx,p_idx,cidx,cp_idx)
         @test sub_group[i][c].Θ == c_sub_group[p][cp].Θ
     end
-    ridx = [4,3]
+    ridx = [4,3] #ridx = [4,1]
     for (i,c,r) in zip(1:2,p_idx[1:2],ridx)
         @test sub_group[i][c].Θ == groups[r][c].Θ
     end
