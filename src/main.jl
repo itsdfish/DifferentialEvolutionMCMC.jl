@@ -3,13 +3,14 @@ Samples from the posterior distribution
 * `model`: a model containing likelihood function with data and priors
 * `de`: differential evolution object
 * `n_iter`: number of iterations or samples
+* `progress`: show progress (default false)
 
 Function signature
 ```@example
-    sample(model::DEModel, de::DE, n_iter::Int; kwargs...)
+    sample(model::DEModel, de::DE, n_iter::Int; progress=false, kwargs...)
 ```
 """
-sample(model::DEModel, de::DE, n_iter::Int; kwargs...) = _sample(model::DEModel, de::DE, n_iter::Int; stepfun=step!, kwargs...)
+sample(model::DEModel, de::DE, n_iter::Int; progress=false, kwargs...) = _sample(model::DEModel, de::DE, n_iter::Int; progress=progress, stepfun=step!, kwargs...)
 
 function _sample(model::DEModel, de::DE, n_iter::Int; progress=false, stepfun=step!, kwargs...)
     meter = Progress(n_iter)
@@ -31,11 +32,13 @@ Samples from the posterior distribution with each group of particles on a sepera
 the mutation and crossover steps.
 * `model`: a model containing likelihood function with data and priors
 * `de`: differential evolution object
+* `MCMCThreads`: pass MCMCThreads() object to run on multiple threads
 * `n_iter`: number of iterations or samples
+* `progress`: show progress (default false)
 
 Function signature
 ```@example
-    psample(model::DEModel, de::DE, n_iter::Int; kwargs...)
+    sample(model::DEModel, de::DE, ::MCMCThreads, n_iter::Int; progress=false, kwargs...)
 ```
 """
 function sample(model::DEModel, de::DE, ::MCMCThreads, n_iter::Int; progress=false, kwargs...)
@@ -95,6 +98,7 @@ Selects between mutation and crossover step with probability β
 * `model`: model containing a likelihood function with data and priors
 * `de`: differential evolution object
 * `group`: a vector of interacting particles (e.g. chains)
+* `seed`: RNG seed
 """
 function mutate_or_crossover!(model, de, group, seed)
     Random.seed!(seed)

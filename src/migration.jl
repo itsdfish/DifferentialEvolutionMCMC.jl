@@ -26,8 +26,7 @@ end
 
 """
 Select particles from groups for migration. Returns particle index and particles.
-* `group_idx`: indices of groups for migration
-* `groups`: groups of particles
+* `sub_group`: vector of particles
 """
 function select_particles(sub_group)
     Ng = length(sub_group)
@@ -55,10 +54,9 @@ end
 """
 Swap the particles so that p1->pn, p2 -> p1,..., pn -> pn-1 where
 pi is the particle belonging to the ith group
-* `group_idx`: indices of groups for migration
+* `sub_group`: group of particles
 * `p_idx`: particle index
 * `particles`: particle objects representing position in parameter space
-* `groups`: groups of particles
 """
 function shift_particles!(sub_group, p_idx, particles)
     # perform a circular shift

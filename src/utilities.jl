@@ -127,7 +127,8 @@ returntype(t, p) = t[p...]
 """
 Update particle based on Metropolis-Hastings rule.
 * `de`: differential evolution object
-* `groups`: groups of particles
+* `current`: current particle
+* `proposal`: proposal particle
 """
 function update_particle!(de, current, proposal)
     @unpack iter,burnin = de

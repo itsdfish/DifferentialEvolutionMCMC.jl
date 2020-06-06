@@ -9,7 +9,7 @@ Differential Evolution MCMC object
 * `ϵ`: noise in crossover step. Default = .001
 * `σ`: standard deviation of noise added to parameters for mutation. Default = .05
 * `κ`: recombination with probability (1-κ) during crossover. Default = 1.0
-* `visualize`: generate scatter plot of particle locations on each iteration. Default=false
+* `bounds`: a vector of tuples for lower and upper bounds of each parameter
 * `iter`: current iteration
 * `progress`: show progress meter if true. Default = true
 
@@ -17,7 +17,7 @@ Constructor signature:
 
 ```@example
 DE(;n_groups=4, priors=nothing, Np=num_parms(priors)*3,burnin=1000,
-    α=.1, β=.1, ϵ=.001, σ=.05, bounds, visualize=false, iter=1, progress=false)
+    α=.1, β=.1, ϵ=.001, σ=.05, bounds, iter=1, progress=false)
 ```
 References:
 

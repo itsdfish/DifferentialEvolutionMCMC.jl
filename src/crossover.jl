@@ -60,8 +60,9 @@ end
 """
 Resets parameters of proposal to previous value with probability
 (1-κ).
-* `pp`: proposal particle
+* `de`: differential evolution object
 * `pt`: current partical
+* `pp`: proposal particle
 """
 function recombination!(de, pt, pp)
     de.κ == 1.0 ? (return nothing) : nothing
