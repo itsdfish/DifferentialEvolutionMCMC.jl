@@ -21,7 +21,7 @@ Turing = "fce5fe82-541a-59a6-adf8-730c64b5f9a0"
 [compat]
 AbstractMCMC = "0.5, 1.0.0"
 AdvancedHMC = "0.2,^0.5"
-Bijectors = "0.6, 0.7"
+Bijectors = "0.6, 0.7, 0.8"
 Distributions = "0.22, 0.23"
 Interpolations = "0.12"
 KernelDensity = "0.5.0"
