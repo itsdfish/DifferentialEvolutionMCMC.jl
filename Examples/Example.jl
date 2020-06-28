@@ -20,7 +20,7 @@ loglike(θ) = loglike(θ..., data)
 
 model = DEModel(priors=priors, model=loglike)
 
-de = DE(bounds=bounds, burnin=1000, priors=priors, progress=true)
+de = DE(bounds=bounds, burnin=1000, priors=priors)
 n_iter = 2000
 chains = sample(model, de, MCMCThreads(), n_iter, progress=true)
 println(chains)

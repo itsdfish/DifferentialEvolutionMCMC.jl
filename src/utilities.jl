@@ -50,8 +50,8 @@ Checks whether parameter is within lower and upper bounds
 in_bounds(b, θ::Real) = θ >= b[1] && θ <= b[2]
 in_bounds(b, θ::Vector{<:Real}) = all(x->in_bounds(b, x), θ)
 
-function in_bounds(de::DE, model)
-    for (b,θ) in zip(de.bounds,model.Θ)
+function in_bounds(de::DE, proposal)
+    for (b,θ) in zip(de.bounds,proposal.Θ)
         !in_bounds(b, θ) ? (return false) : nothing
     end
     return true
@@ -237,7 +237,7 @@ function -(x::Particle, y::Real)
     return Particle(Θ=z)
 end
 
-# arithmatic methods for hanlding discrete parameters
+# arithmetic methods for hanlding discrete parameters
 *′(x, y) = x*y
 *′(x::Int64, y::Float64) = Int(round(x*y))
 *′(x::Float64, y::Int64) = Int(round(x*y))

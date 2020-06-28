@@ -1,7 +1,7 @@
 """
 Differential Evolution MCMC object
 * `n_groups`: number of groups of particles. Default = 4
-* `Np`: number of particles per chain. Default = number of parameters * 3 if
+* `Np`: number of particles per group. Default = number of parameters * 3 if
     priors are passed
 * `burnin`: number of burnin iterations. Default = 1000
 * `α`: migration probability. Default = .1
@@ -11,13 +11,12 @@ Differential Evolution MCMC object
 * `κ`: recombination with probability (1-κ) during crossover. Default = 1.0
 * `bounds`: a vector of tuples for lower and upper bounds of each parameter
 * `iter`: current iteration
-* `progress`: show progress meter if true. Default = true
 
 Constructor signature:
 
 ```@example
 DE(;n_groups=4, priors=nothing, Np=num_parms(priors)*3,burnin=1000,
-    α=.1, β=.1, ϵ=.001, σ=.05, bounds, iter=1, progress=false)
+    α=.1, β=.1, ϵ=.001, σ=.05, bounds, iter=1)
 ```
 References:
 
@@ -38,12 +37,15 @@ mutable struct DE{T1} <: AbstractSampler
     κ::Float64
     bounds::T1
     iter::Int64
-    progress::Bool
 end
 
-function DE(;n_groups=4, priors=nothing, Np=num_parms(priors)*3, burnin=1000, α=.1, β=.1, ϵ=.001, σ=.05,
-    κ=1.0, bounds, progress=true)
-    return DE(n_groups, Np, burnin, α, β, ϵ, σ, κ, bounds, 1, progress)
+function DE(;n_groups=4, priors=nothing, Np=num_parms(priors)*3, burnin=1000, α=.1, β=.1, ϵ=.001,
+    σ=.05, κ=1.0, bounds)
+    if (α > 0) && (n_groups == 1)
+        α = 0.0
+        @warn "migration probability α > 0 but n_groups == 1. Changing α = 0.0"
+    end
+    return DE(n_groups, Np, burnin, α, β, ϵ, σ, κ, bounds, 1)
 end
 
 """

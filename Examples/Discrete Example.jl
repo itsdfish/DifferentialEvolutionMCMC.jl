@@ -33,7 +33,7 @@ loglike(θ) = loglike(θ..., data)
 
 model = DEModel(priors=priors, model=loglike)
 
-de = DE(bounds=bounds, burnin=1000, priors=priors, progress=true, Np=15)
+de = DE(bounds=bounds, burnin=1000, priors=priors, Np=15)
 n_iter = 2000
-@elapsed chains = sample(model, de, n_iter)
+@elapsed chains = sample(model, de, n_iter, progress=true)
 println(chains)
