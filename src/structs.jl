@@ -74,7 +74,7 @@ function num_parms(priors)
     end
     n = 0
     for p in priors
-        length(p) == 1 ? n += 1 : (n += p[2])
+        length(p) == 1 ? n += 1 : (n += sum(p[2]))
     end
     return n
 end

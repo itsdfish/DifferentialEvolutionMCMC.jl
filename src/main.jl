@@ -65,8 +65,6 @@ function pstep!(model::DEModel, de::DE, groups)
     return groups
 end
 
-_f(x...; y...) = nothing
-
 """
 On a single core, selects between mutation and crossover step with probability β
 * `model`: model containing a likelihood function with data and priors

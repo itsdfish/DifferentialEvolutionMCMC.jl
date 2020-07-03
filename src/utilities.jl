@@ -48,7 +48,7 @@ Checks whether parameter is within lower and upper bounds
 * `θ`: a parameter value
 """
 in_bounds(b, θ::Real) = θ >= b[1] && θ <= b[2]
-in_bounds(b, θ::Vector{<:Real}) = all(x->in_bounds(b, x), θ)
+in_bounds(b, θ::Array{<:Real,N}) where {N} = all(x->in_bounds(b, x), θ)
 
 function in_bounds(de::DE, proposal)
     for (b,θ) in zip(de.bounds,proposal.Θ)
@@ -72,18 +72,19 @@ Returns parameters names.
 * `p`: a particle
 """
 function get_names(model, p)
-    N = length.(p.Θ)
-    parm_names = fill("", sum(N))
+    N = size.(p.Θ)
+    n_parms = length.(p.Θ)
+    parm_names = fill("", sum(n_parms))
     cnt = 0
     for (k,n) in zip(model.names, N)
-        if n > 1
-            for i in 1:n
-                cnt += 1
-                parm_names[cnt] = string(k, "[",i,"]")
-            end
-        else
+        if isempty(n)
             cnt += 1
             parm_names[cnt] = string(k)
+        else
+            for i in CartesianIndices(n)
+                cnt += 1
+                parm_names[cnt] = string(k, "[",join([i.I...],","),"]")
+            end
         end
     end
     push!(parm_names, "acceptance", "lp")
@@ -116,13 +117,14 @@ function add_sample!(p, i)
 end
 
 function sample_prior(priors)
-    p = [rand(p...) for p in priors]
-    t = findtype(p)
-    return returntype(t, p)
+    samples = [rand(p...) for p in priors]
+    t = findtype(samples)
+    return sample_prior(samples, t)
 end
 
+sample_prior(samples, T) = T[s for s in samples]
+
 findtype(p) = Union{unique(typeof.(p))...}
-returntype(t, p) = t[p...]
 
 """
 Update particle based on Metropolis-Hastings rule.
@@ -183,7 +185,7 @@ function draw(d, v::Float64)
 end
 
 function draw(d, v)
-    return rand(d, length(v))
+    return rand(d, size(v))
 end
 
 function *(x::Particle, y::Particle)
