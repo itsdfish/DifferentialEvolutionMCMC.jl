@@ -11,15 +11,15 @@ function loglike(μ, σ, data)
 end
 
 priors = (
-    μ=(Normal(0, 10),),
-    σ=(Truncated(Cauchy(0, 1), 0.0, Inf),)
+    μ = (Normal(0, 10),),
+    σ = (Truncated(Cauchy(0, 1), 0.0, Inf),)
 )
 
 bounds = ((-Inf,Inf),(0.0,Inf))
 
 data = rand(Normal(0.0, 1.0), 50)
 
-model = DEModel(priors=priors, model=x->loglike(x..., data))
+model = DEModel(priors=priors, model=x -> loglike(x..., data))
 
 de = DE(bounds=bounds, burnin=1000, priors=priors)
 n_iter = 2000

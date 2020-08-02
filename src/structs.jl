@@ -39,7 +39,7 @@ mutable struct DE{T1} <: AbstractSampler
     iter::Int64
 end
 
-function DE(;n_groups=4, priors=nothing, Np=num_parms(priors)*3, burnin=1000, α=.1, β=.1, ϵ=.001,
+function DE(;n_groups=4, priors=nothing, Np=num_parms(priors) * 3, burnin=1000, α=.1, β=.1, ϵ=.001,
     σ=.05, κ=1.0, bounds)
     if (α > 0) && (n_groups == 1)
         α = 0.0
@@ -54,7 +54,7 @@ A model object containing the log likelihood function and prior distributions
 * `model`: log likelihood function
 * `names`: parameter names
 """
-struct DEModel{F,L,T} <: AbstractModel where {F<:Function,L,T}
+struct DEModel{F,L,T} <: AbstractModel where {F <: Function,L,T}
     priors::L
     model::F
     names::T
@@ -96,7 +96,7 @@ end
 
 Base.broadcastable(x::Particle) = Ref(x)
 
-function Particle(;Θ=[.0], samples=Array{eltype(Θ),2}(undef,1,1),
+function Particle(;Θ=[.0], samples=Array{eltype(Θ),2}(undef, 1, 1),
     accept=Bool[],weight=0.0)
     Particle(Θ, samples, accept, weight, Float64[])
 end

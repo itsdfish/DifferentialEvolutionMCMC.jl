@@ -4,8 +4,8 @@ using DifferentialEvolutionMCMC, Random, Distributions
 Random.seed!(50514)
 
 priors = (
-    μ=(Normal(0, 10),),
-    σ=(Truncated(Cauchy(0, 1), 0.0, Inf),)
+    μ = (Normal(0, 10),),
+    σ = (Truncated(Cauchy(0, 1), 0.0, Inf),)
 )
 
 bounds = ((-Inf,Inf),(0.0,Inf))

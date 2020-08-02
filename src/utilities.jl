@@ -7,14 +7,14 @@ Initializes values for a particle
 """
 function init_particle!(model, de, p, n_iter)
     N = n_iter - de.burnin
-    p.samples = typeof(p.samples)(undef,N,length(p.Θ))
+    p.samples = typeof(p.samples)(undef, N, length(p.Θ))
     p.accept = fill(false, N)
     p.weight = priorlike(model, p) + model.model(p.Θ)
     p.lp = fill(0.0, N)
     return nothing
 end
 
-function priorlike(model, p::Particle{Array{T,1}}) where {T<:Real}
+function priorlike(model, p::Particle{Array{T,1}}) where {T <: Real}
     return sum(logpdf.(model.priors, p.Θ))
 end
 
@@ -38,7 +38,7 @@ Note: assumes weights are posterior log likelihoods
 * `current`: weight of current value e.g. posterior log likelihood
 """
 function accept(proposal, current)
-    p = min(1.0, exp(proposal-current))
+    p = min(1.0, exp(proposal - current))
     rand() <= p ? (return true) : (return false)
 end
 
@@ -48,10 +48,10 @@ Checks whether parameter is within lower and upper bounds
 * `θ`: a parameter value
 """
 in_bounds(b, θ::Real) = θ >= b[1] && θ <= b[2]
-in_bounds(b, θ::Array{<:Real,N}) where {N} = all(x->in_bounds(b, x), θ)
+in_bounds(b, θ::Array{<:Real,N}) where {N} = all(x -> in_bounds(b, x), θ)
 
 function in_bounds(de::DE, proposal)
-    for (b,θ) in zip(de.bounds,proposal.Θ)
+    for (b,θ) in zip(de.bounds, proposal.Θ)
         !in_bounds(b, θ) ? (return false) : nothing
     end
     return true
@@ -83,7 +83,7 @@ function get_names(model, p)
         else
             for i in CartesianIndices(n)
                 cnt += 1
-                parm_names[cnt] = string(k, "[",join([i.I...],","),"]")
+                parm_names[cnt] = string(k, "[", join([i.I...], ","), "]")
             end
         end
     end
@@ -108,7 +108,7 @@ function store_samples!(de, groups)
     return nothing
 end
 
-function add_sample!(p::Particle{T}, i) where {T<:Real}
+function add_sample!(p::Particle{T}, i) where {T <: Real}
     p.samples[i,:] = p.Θ'
 end
 
@@ -240,13 +240,13 @@ function -(x::Particle, y::Real)
 end
 
 # arithmetic methods for hanlding discrete parameters
-*′(x, y) = x*y
-*′(x::Int64, y::Float64) = Int(round(x*y))
-*′(x::Float64, y::Int64) = Int(round(x*y))
-*′(x::Array{Int64,N}, y::Float64) where {N} = @. Int(round(x*y))
-*′(x::Float64, y::Array{Int64,N}) where {N} = @. Int(round(x*y))
+*′(x, y) = x * y
+*′(x::Int64, y::Float64) = Int(round(x * y))
+*′(x::Float64, y::Int64) = Int(round(x * y))
+*′(x::Array{Int64,N}, y::Float64) where {N} = @. Int(round(x * y))
+*′(x::Float64, y::Array{Int64,N}) where {N} = @. Int(round(x * y))
 +′(x, y) = x + y
-+′(x::Int64, y::Float64) = Int(round(x+y))
-+′(x::Float64, y::Int64) = Int(round(x+y))
-+′(x::Array{Int64,N}, y::Float64) where {N} = @. Int(round(x+y))
-+′(x::Float64, y::Array{Int64,N}) where {N} = @. Int(round(x+y))
++′(x::Int64, y::Float64) = Int(round(x + y))
++′(x::Float64, y::Int64) = Int(round(x + y))
++′(x::Array{Int64,N}, y::Float64) where {N} = @. Int(round(x + y))
++′(x::Float64, y::Array{Int64,N}) where {N} = @. Int(round(x + y))

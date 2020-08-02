@@ -15,8 +15,8 @@ N = 30
 data = mapreduce(c -> rand(MvNormal([μs[c], μs[c]], 1.), N), hcat, 1:2)
 
 priors = (
-    idx=(Categorical([.5,.5]),N),
-    μs = (Normal(0,1),2),
+    idx = (Categorical([.5,.5]),N),
+    μs = (Normal(0, 1),2),
 )
 
 bounds = ((1,2),(0.0,Inf))

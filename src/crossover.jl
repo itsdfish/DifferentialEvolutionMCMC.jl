@@ -34,11 +34,11 @@ function generate_proposal(de, Pt, group)
     # sample gamma weights
     γ₁ = rand(Uniform(.5, 1))
     # set γ₂ = 0 after burnin
-    de.iter > de.burnin ? γ₂=0.0 : γ₂=rand(Uniform(.5, 1))
+    de.iter > de.burnin ? γ₂ = 0.0 : γ₂ = rand(Uniform(.5, 1))
     # sample noise for each parameter
     b = Uniform(-de.ϵ, de.ϵ)
     # compute proposal value
-    Θp = Pt + γ₁*(Pm - Pn) + γ₂*(Pb - Pt) + b
+    Θp = Pt + γ₁ * (Pm - Pn) + γ₂ * (Pb - Pt) + b
     # reset each parameter to previous value with probability (1-κ)
     recombination!(de, Pt, Θp)
     return Θp
@@ -49,8 +49,8 @@ Selects base particle θb with probability proportional to weight
 * `group`: a group of particles
 """
 function select_base(group)
-    w = map(x->x.weight, group)
-    θ = exp.(w)/sum(exp.(w))
+    w = map(x -> x.weight, group)
+    θ = exp.(w) / sum(exp.(w))
     p = sample(group, Weights(θ))
     return p
 end
@@ -69,7 +69,7 @@ function recombination!(de, pt, pp)
         if isa(pp.Θ[i], Array)
             recombination!(de, pt, pp, i)
         else
-            rand() <= (1-de.κ) ? pp.Θ[i] = pt.Θ[i] : nothing
+            rand() <= (1 - de.κ) ? pp.Θ[i] = pt.Θ[i] : nothing
         end
     end
     return nothing
@@ -79,7 +79,7 @@ end
 function recombination!(de, pt, pp, idx)
     N = length(pt.Θ[idx])
     for i in 1:N
-        rand() <= (1-de.κ) ? pp.Θ[idx][i] = pt.Θ[idx][i] : nothing
+        rand() <= (1 - de.κ) ? pp.Θ[idx][i] = pt.Θ[idx][i] : nothing
     end
     return nothing
 end

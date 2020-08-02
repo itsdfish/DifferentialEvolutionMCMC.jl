@@ -31,7 +31,7 @@ Select particles from groups for migration. Returns particle index and particles
 function select_particles(sub_group)
     Ng = length(sub_group)
     p_idx = fill(0, Ng)
-    particles = Vector{eltype(sub_group[1])}(undef,Ng)
+    particles = Vector{eltype(sub_group[1])}(undef, Ng)
     for (i,g) in enumerate(sub_group)
         p_idx[i],particles[i] = select_particle(g)
     end
@@ -44,7 +44,7 @@ Select particle from a single chain inversely proportional to its weight
 """
 function select_particle(group)
     w = map(x -> x.weight, group)
-    θ = exp.(-w)/sum(exp.(-w))
+    θ = exp.(-w) / sum(exp.(-w))
     idx = sample(1:length(group), Weights(θ))
     # if numberical error occurs, select the worst particle index (lower is worse)
     any(isnan, θ) ? idx = findmin(w)[2] : nothing

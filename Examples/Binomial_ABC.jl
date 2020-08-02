@@ -3,21 +3,21 @@ using DifferentialEvolutionMCMC, Random, Parameters, Distributions
 Random.seed!(88484)
 
 priors = (
-    θ=(Beta(1, 1),),
+    θ = (Beta(1, 1),),
 )
 
 bounds = ((0,1),)
 
 N = 10
 k = rand(Binomial(N, .5))
-data = (N=N,k=k)
+data = (N = N,k = k)
 
 function loglike(θ, data)
     @unpack N,k = data
     n_sim = 10^4
-    counter(_) = rand(Binomial(N, θ)) == k ? (return 1) : (return 0)
+    counter(_) = rand(Binomial(N, θ)) == k ? 1 : 0
     cnt = mapreduce(counter, +, 1:n_sim)
-    return log(cnt/n_sim)
+    return log(cnt / n_sim)
 end
 
 # loglike(θ, data) = logpdf(Binomial(data.N, θ), data.k)

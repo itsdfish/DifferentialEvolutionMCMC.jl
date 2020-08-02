@@ -115,7 +115,7 @@ and posterior summaries
 function bundle_samples(model::DEModel, de::DE, groups, n_iter)
     particles = vcat(groups...)
     Np = length(particles)
-    Ns = n_iter- de.burnin
+    Ns = n_iter - de.burnin
     all_names = get_names(model, particles[1])
     n_parms = length(all_names)
     Nnames = length(model.names)
@@ -130,7 +130,7 @@ function bundle_samples(model::DEModel, de::DE, groups, n_iter)
             v[s,:,c] = temp'
         end
     end
-    return Chains(v, all_names, (internals=["acceptance", "lp"],); sorted=true)
+    return Chains(v, all_names, (internals = ["acceptance", "lp"],); sorted=true)
 end
 
 """
