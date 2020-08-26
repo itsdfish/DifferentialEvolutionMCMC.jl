@@ -6,9 +6,9 @@ cd(@__DIR__)
     Random.seed!(29542)
     N = 10
     k = rand(Binomial(N, .5))
-    data = (N=N,k=k)
+    data = (N = N,k = k)
     priors = (
-        θ=(Beta(1,1),),
+        θ = (Beta(1, 1),),
     )
 
     bounds = ((0,1),)
@@ -26,8 +26,8 @@ cd(@__DIR__)
     chains = sample(model, de, n_iter)
     μθ = describe(chains)[1][:,:mean][1]
     σθ = describe(chains)[1][:,:std][1]
-    rhat = describe(chains)[1][:,:r_hat][1]
-    solution = Beta(k+1,N-k+1)
+    rhat = describe(chains)[1][:,:rhat][1]
+    solution = Beta(k + 1, N - k + 1)
     @test μθ ≈ mean(solution) rtol = .02
     @test σθ ≈ std(solution) rtol = .02
     @test rhat ≈ 1.0 atol = .01
@@ -38,8 +38,8 @@ end
     import DifferentialEvolutionMCMC: select_groups, select_particles, shift_particles!, sample_init
     Random.seed!(973536)
     priors = (
-        μ=(Normal(0, 10),),
-        σ=(truncated(Cauchy(0, 1), 0.0, Inf),)
+        μ = (Normal(0, 10),),
+        σ = (truncated(Cauchy(0, 1), 0.0, Inf),)
     )
 
     bounds = ((-Inf,Inf),(0.0,Inf))
@@ -57,7 +57,7 @@ end
     chains = sample(model, de, n_iter)
     μ_de = describe(chains)[1][:,:mean]
     σ_de = describe(chains)[1][:,:std]
-    rhat = describe(chains)[1][:,:r_hat]
+    rhat = describe(chains)[1][:,:rhat]
 
     @model model(data) = begin
         μ ~ Normal(0, 10)
@@ -70,9 +70,9 @@ end
     μ_nuts = describe(chn)[1][:,:mean]
     σ_nuts = describe(chn)[1][:,:std]
 
-    @test all(isapprox.(rhat, fill(1.0, 2), atol = .05))
-    @test all(isapprox.(μ_nuts, μ_de, atol = .01))
-    @test all(isapprox.(σ_nuts, σ_de, atol = .01))
+    @test all(isapprox.(rhat, fill(1.0, 2), atol=.05))
+    @test all(isapprox.(μ_nuts, μ_de, atol=.01))
+    @test all(isapprox.(σ_nuts, σ_de, atol=.01))
 end
 
 @testset "LNR" begin
@@ -91,9 +91,9 @@ end
 
     loglike(θ) = loglike(θ..., data)
 
-    minRT = minimum(x->x[2], data)
-    priors = (μ=(Normal(0, 3), 4),σ=(truncated(Cauchy(0,1), 0.0, Inf),),
-        ϕ=(Uniform(0.,minRT),))
+    minRT = minimum(x -> x[2], data)
+    priors = (μ = (Normal(0, 3), 4),σ = (truncated(Cauchy(0, 1), 0.0, Inf),),
+        ϕ = (Uniform(0., minRT),))
     bounds = ((-Inf,0.),(1e-10,Inf),(0.,minRT))
     model = DEModel(priors=priors, model=loglike)
     de = DE(;priors=priors, bounds=bounds, burnin=2000)
@@ -104,7 +104,7 @@ end
     rhat = describe(chains)[1][:,:r_hat]
 
     @model model(data) = begin
-        minRT = minimum(x->x[2], data)
+        minRT = minimum(x -> x[2], data)
         μ ~ MvNormal(zeros(4), 3)
         σ ~ truncated(Cauchy(0, 1), 0.0, Inf)
         ϕ ~ Uniform(0.0, minRT)
@@ -115,9 +115,9 @@ end
     μ_nuts = describe(chn)[1][:,:mean]
     σ_nuts = describe(chn)[1][:,:std]
 
-    @test all(isapprox.(rhat, fill(1.0, 6), atol = .05))
-    @test all(isapprox.(μ_nuts, μ_de, rtol = .05))
-    @test all(isapprox.(σ_nuts, σ_de, rtol = .05))
+    @test all(isapprox.(rhat, fill(1.0, 6), atol=.05))
+    @test all(isapprox.(μ_nuts, μ_de, rtol=.05))
+    @test all(isapprox.(σ_nuts, σ_de, rtol=.05))
 end
 
 function equal(p1::Particle, p2::Particle)
@@ -135,13 +135,13 @@ end
     using DifferentialEvolutionMCMC, Test, Random, Turing, Parameters, Distributions
     import DifferentialEvolutionMCMC: select_groups, select_particles, shift_particles!, sample_init
 
-    Random.seed!(0451) #Random.seed!(459)
+    Random.seed!(0451) # Random.seed!(459)
     priors = (
-        θ=(Beta(1,1),),
+        θ = (Beta(1, 1),),
     )
     bounds = ((0,1),)
 
-    data = (N=10,k=5)
+    data = (N = 10,k = 5)
 
     function loglike(θ, data)
         return logpdf(Binomial(data.N, θ), data.k)
@@ -162,11 +162,11 @@ end
     gidx = 1:length(sub_group)
     cidx = circshift(gidx, 1)
     cp_idx = circshift(p_idx, 1)
-    for (i,c,p,cp) in zip(gidx,p_idx,cidx,cp_idx)
+    for (i,c,p,cp) in zip(gidx, p_idx, cidx, cp_idx)
         @test sub_group[i][c].Θ == c_sub_group[p][cp].Θ
     end
-    ridx = [4,3] #ridx = [4,1]
-    for (i,c,r) in zip(1:2,p_idx[1:2],ridx)
+    ridx = [4,3] # ridx = [4,1]
+    for (i,c,r) in zip(1:2, p_idx[1:2], ridx)
         @test sub_group[i][c].Θ == groups[r][c].Θ
     end
 end

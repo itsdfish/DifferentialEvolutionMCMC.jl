@@ -130,7 +130,9 @@ function bundle_samples(model::DEModel, de::DE, groups, n_iter)
             v[s,:,c] = temp'
         end
     end
-    return Chains(v, all_names, (internals = ["acceptance", "lp"],); sorted=true)
+    chains = Chains(v, all_names, (parameters = [model.names...],
+        internals = ["acceptance", "lp"]))
+    return chains
 end
 
 """
