@@ -101,7 +101,7 @@ end
     chains = sample(model, de, n_iter)
     μ_de = describe(chains)[1][:,:mean]
     σ_de = describe(chains)[1][:,:std]
-    rhat = describe(chains)[1][:,:r_hat]
+    rhat = describe(chains)[1][:,:rhat]
 
     @model model(data) = begin
         minRT = minimum(x -> x[2], data)
