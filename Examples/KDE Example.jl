@@ -2,13 +2,7 @@ cd(@__DIR__)
 using DifferentialEvolutionMCMC, Random, KernelDensity, Distributions
 include("KDE.jl")
 
-function loglike(μ, σ, data)
-    simdata = rand(Normal(μ, σ), 10_000)
-    kd = kernel(simdata)
-    dist = InterpKDE(kd)
-    like = max.(1e-10, pdf(dist, data))
-    return sum(log.(like))
-end
+loglike(μ, σ, data) = sum(logpdf.(Normal(μ, σ,), data))
 
 priors = (
     μ = (Normal(0, 10),),
@@ -21,7 +15,8 @@ data = rand(Normal(0.0, 1.0), 50)
 
 model = DEModel(priors=priors, model=x -> loglike(x..., data))
 
-de = DE(bounds=bounds, burnin=1000, priors=priors)
+de = DE(bounds=bounds, burnin=1000, priors=priors, Np=6, n_groups=1,
+    generate_proposal=fixed)
 n_iter = 2000
 chains = sample(model, de, MCMCThreads(), n_iter, progress=true)
-println(chains)
+display(chains)
