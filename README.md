@@ -1,6 +1,6 @@
 # DifferentialEvolutionMCMC
 
-DifferentialEvolutionMCMC.jl is a Differential Evolution MCMC sampler written in Julia and uses the AbstractMCMC interface. DifferentialEvolutionMCMC.jl works with any model that provides that returns an exact or approximate log likeilhood. An annotated example is provided below. Other examples can be found in the examples subfolder.
+DifferentialEvolutionMCMC.jl is a Differential Evolution MCMC sampler written in Julia and uses the AbstractMCMC interface. DifferentialEvolutionMCMC.jl works with any model, provided that it returns an exact or approximate log likeilhood. An annotated example is provided below. Other examples can be found in the examples subfolder.
 
 ## Example
 
