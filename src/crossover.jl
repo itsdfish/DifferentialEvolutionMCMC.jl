@@ -113,7 +113,7 @@ function recombination!(de, pt, pp)
         if isa(pp.Θ[i], Array)
             recombination!(de, pt, pp, i)
         else
-            rand() <= (1 - de.κ) ? pp.Θ[i] = pt.Θ[i] : nothing
+            pp.Θ[i] = rand() <= (1 - de.κ) ?  pt.Θ[i] : pp.Θ[i]
         end
     end
     return nothing
@@ -123,7 +123,7 @@ end
 function recombination!(de, pt, pp, idx)
     N = length(pt.Θ[idx])
     for i in 1:N
-        rand() <= (1 - de.κ) ? pp.Θ[idx][i] = pt.Θ[idx][i] : nothing
+        pp.Θ[idx][i] = rand() <= (1 - de.κ) ? pt.Θ[idx][i] : pp.Θ[idx][i]
     end
     return nothing
 end
