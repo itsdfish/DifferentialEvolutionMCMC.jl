@@ -52,9 +52,6 @@ where γ = 2.38
 """
 function fixed_gamma(de, Pt, group)
     Np = length(Pt.Θ)
-    # select the base particle θb
-    Pb = select_base(group)
-    # group without Pb
     group_diff = setdiff(group, [Pt])
     # sample particles for θm and θn
     Pm,Pn = sample(group_diff, 2, replace=false)
@@ -78,9 +75,6 @@ where γ = 2.38/√(2d) where d is the number of parameters
 """
 function variable_gamma(de, Pt, group)
     Np = length(Pt.Θ)
-    # select the base particle θb
-    Pb = select_base(group)
-    # group without Pb
     group_diff = setdiff(group, [Pt])
     # sample particles for θm and θn
     Pm,Pn = sample(group_diff, 2, replace=false)
@@ -98,11 +92,11 @@ end
 Selects base particle θb with probability proportional to weight
 * `group`: a group of particles
 """
-    function select_base(group)
+function select_base(group)
     w = map(x -> x.weight, group)
     θ = exp.(w) / sum(exp.(w))
     p = sample(group, Weights(θ))
-return p
+    return p
 end
 
 """
@@ -122,7 +116,7 @@ function recombination!(de, pt, pp)
             rand() <= (1 - de.κ) ? pp.Θ[i] = pt.Θ[i] : nothing
         end
     end
-return nothing
+    return nothing
 end
 
 # Handles elements within an array
@@ -131,5 +125,5 @@ function recombination!(de, pt, pp, idx)
     for i in 1:N
         rand() <= (1 - de.κ) ? pp.Θ[idx][i] = pt.Θ[idx][i] : nothing
     end
-return nothing
+    return nothing
 end
