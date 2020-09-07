@@ -47,7 +47,7 @@ function select_particle(group)
     θ = exp.(-w) / sum(exp.(-w))
     idx = sample(1:length(group), Weights(θ))
     # if numberical error occurs, select the worst particle index (lower is worse)
-    any(isnan, θ) ? idx = findmin(w)[2] : nothing
+    idx = any(isnan, θ) ? findmin(w)[2] : idx
     return idx,group[idx]
 end
 

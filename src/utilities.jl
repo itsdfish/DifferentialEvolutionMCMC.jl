@@ -36,10 +36,11 @@ Metropolis-Hastings proposal selection
 Note: assumes weights are posterior log likelihoods
 * `proposal`: weight of proposal e.g. posterior log likelihood
 * `current`: weight of current value e.g. posterior log likelihood
+* `adj`: an adjustment term for the snooker update
 """
-function accept(proposal, current)
-    p = min(1.0, exp(proposal - current))
-    rand() <= p ? (return true) : (return false)
+function accept(proposal, current, log_adj=0.0)
+    p = min(1.0, exp(proposal - current + log_adj))
+    return rand() <= p ? true : false
 end
 
 """
@@ -131,11 +132,12 @@ Update particle based on Metropolis-Hastings rule.
 * `de`: differential evolution object
 * `current`: current particle
 * `proposal`: proposal particle
+* `log_adj`: an adjustment term for snooker update
 """
-function update_particle!(de, current, proposal)
+function update_particle!(de, current, proposal, log_adj=0.0)
     @unpack iter,burnin = de
     i = iter - burnin
-    accepted = accept(proposal.weight, current.weight)
+    accepted = accept(proposal.weight, current.weight, log_adj)
     if accepted
         current.Θ = proposal.Θ
         current.weight = proposal.weight
@@ -147,8 +149,18 @@ function update_particle!(de, current, proposal)
     return nothing
 end
 
+function project(p1::Particle, p2::Particle)
+    v1,v2 = (0.0,0.0)
+    for (Θ1,Θ2) in zip(p1.Θ, p2.Θ)
+        v1 += sum(Θ1 .* Θ2)
+        v2 += sum(Θ2.^2)
+    end
+    return p2*(v1/v2)
+end
 
-# Type-stable arithmatic operations for Union{Array{Float64,1},Float64} types (which return Any otherwise)
+norm(p::Particle) = norm(p.Θ)
+
+# Type-stable arithmatic operations for Union{Array{T,1},T} types (which return Any otherwise)
 import Base: +, - ,*
 
 function +(x::Particle, y::Particle)

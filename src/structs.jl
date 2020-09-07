@@ -9,6 +9,7 @@ Differential Evolution MCMC object
 * `ϵ`: noise in crossover step. Default = .001
 * `σ`: standard deviation of noise added to parameters for mutation. Default = .05
 * `κ`: recombination with probability (1-κ) during crossover. Default = 1.0
+* `θsnooker`: sample along line x_i - z. Default = 0.0
 * `bounds`: a vector of tuples for lower and upper bounds of each parameter
 * `iter`: current iteration
 * `generate_proposal`: a function that generates proposals. Default is the two mode proposal described in
@@ -24,6 +25,8 @@ References:
 
 * Ter Braak, C. J. A Markov Chain Monte Carlo version of the genetic algorithm Differential Evolution: easy Bayesian computing for real parameter spaces.
 
+* Ter Braak, Cajo JF, and Jasper A. Vrugt. "Differential evolution Markov chain with snooker updater and fewer chains." Statistics and Computing 18.4 (2008): 435-446
+
 * Turner, B. M., Sederberg, P. B., Brown, S. D., & Steyvers, M. (2013). A method for efficiently sampling from distributions with correlated dimensions. Psychological methods, 18(3), 368.
 
 * Turner, B. M., & Sederberg, P. B. (2012). Approximate Bayesian computation with differential evolution. Journal of Mathematical Psychology, 56(5), 375-385.
@@ -37,18 +40,19 @@ mutable struct DE{T1,F <: Function} <: AbstractSampler
     ϵ::Float64
     σ::Float64
     κ::Float64
+    θsnooker::Float64
     bounds::T1
     iter::Int64
     generate_proposal::F
 end
 
 function DE(;n_groups=4, priors=nothing, Np=num_parms(priors) * 3, burnin=1000, α=.1, β=.1, ϵ=.001,
-    σ=.05, κ=1.0, bounds, generate_proposal=random_gamma)
+    σ=.05, κ=1.0, θsnooker=0.0, bounds, generate_proposal=random_gamma)
     if (α > 0) && (n_groups == 1)
         α = 0.0
         @warn "migration probability α > 0 but n_groups == 1. Changing α = 0.0"
     end
-    return DE(n_groups, Np, burnin, α, β, ϵ, σ, κ, bounds, 1, generate_proposal)
+    return DE(n_groups, Np, burnin, α, β, ϵ, σ, κ, θsnooker, bounds, 1, generate_proposal)
 end
 
 """

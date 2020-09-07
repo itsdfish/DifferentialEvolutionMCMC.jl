@@ -78,7 +78,7 @@ end
 @testset "LNR" begin
     using DifferentialEvolutionMCMC, Test, Random, Turing, Parameters, Distributions
     import DifferentialEvolutionMCMC: select_groups, select_particles, shift_particles!, sample_init
-    Random.seed!(59391)
+    Random.seed!(970186)
     include("LogNormalRace.jl")
 
     dist = LNR(μ=[-2.,-2.,-3.,-3], σ=1.0, ϕ=.5)
@@ -103,7 +103,7 @@ end
     σ_de = describe(chains)[1][:,:std]
     rhat = describe(chains)[1][:,:rhat]
 
-    @model model(data) = begin
+    @model turing_model(data) = begin
         minRT = minimum(x -> x[2], data)
         μ ~ MvNormal(zeros(4), 3)
         σ ~ truncated(Cauchy(0, 1), 0.0, Inf)
@@ -111,7 +111,7 @@ end
         data ~ LNR(μ=μ, σ=σ, ϕ=ϕ)
     end
 
-    chn = sample(model(data), NUTS(1000, .85), 2000)
+    chn = sample(turing_model(data), NUTS(1000, .85), 2000)
     μ_nuts = describe(chn)[1][:,:mean]
     σ_nuts = describe(chn)[1][:,:std]
 
