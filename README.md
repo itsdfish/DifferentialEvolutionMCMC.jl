@@ -16,8 +16,8 @@ Define the prior distributions as a NamedTuple of distribution objects and numbe
 
 ```julia
 priors = (
-μ = (Normal(0, 10),),
-σ = (Truncated(Cauchy(0, 1), 0.0, Inf),)
+    μ = (Normal(0, 10),),
+    σ = (Truncated(Cauchy(0, 1), 0.0, Inf),)
 )
 ```
 
