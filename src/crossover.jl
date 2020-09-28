@@ -9,9 +9,9 @@ function crossover!(model, de, group)
         # generate the proposal
         proposal = de.generate_proposal(de, pt, group)
         # compute the weight of the proposal: prior loglikelihood + data loglikelihood
-        compute_posterior!(de, model, proposal)
+        de.evaluate_fitness!(de, model, proposal)
         # accept proposal according to Metropolis-Hastings rule
-        update_particle!(de, pt, proposal)
+        de.update_particle!(de, pt, proposal)
     end
 end
 

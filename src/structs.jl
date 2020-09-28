@@ -28,7 +28,7 @@ References:
 
 * Turner, B. M., & Sederberg, P. B. (2012). Approximate Bayesian computation with differential evolution. Journal of Mathematical Psychology, 56(5), 375-385.
 """
-mutable struct DE{T1,F <: Function} <: AbstractSampler
+mutable struct DE{T1,F1,F2,F3} <: AbstractSampler
     n_groups::Int64
     Np::Int64
     burnin::Int64
@@ -39,16 +39,20 @@ mutable struct DE{T1,F <: Function} <: AbstractSampler
     κ::Float64
     bounds::T1
     iter::Int64
-    generate_proposal::F
+    generate_proposal::F1
+    update_particle!::F2
+    evaluate_fitness!::F3
 end
 
 function DE(;n_groups=4, priors=nothing, Np=num_parms(priors) * 3, burnin=1000, α=.1, β=.1, ϵ=.001,
-    σ=.05, κ=1.0, bounds, generate_proposal=random_gamma)
+    σ=.05, κ=1.0, bounds, generate_proposal=random_gamma, update_particle! = Metropolis_Hastings_update!,
+    evaluate_fitness! = compute_posterior!)
     if (α > 0) && (n_groups == 1)
         α = 0.0
         @warn "migration probability α > 0 but n_groups == 1. Changing α = 0.0"
     end
-    return DE(n_groups, Np, burnin, α, β, ϵ, σ, κ, bounds, 1, generate_proposal)
+    return DE(n_groups, Np, burnin, α, β, ϵ, σ, κ, bounds, 1, generate_proposal, update_particle!,
+        evaluate_fitness!)
 end
 
 """
