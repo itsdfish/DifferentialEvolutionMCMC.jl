@@ -11,9 +11,9 @@ function mutation!(model, de, group)
         # add noise to each parameter
         proposal = pt + noise
         # add Loglikelihood of prior to particle weight
-        compute_posterior!(de, model, proposal)
+        de.evaluate_fitness!(de, model, proposal)
         # update whether proposal was accepted and add proposal if accepted
-        update_particle!(de, pt, proposal)
+        de.update_particle!(de, pt, proposal)
     end
     return nothing
 end

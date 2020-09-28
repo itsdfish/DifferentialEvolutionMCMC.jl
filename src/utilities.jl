@@ -67,6 +67,15 @@ function compute_posterior!(de, model, proposal)
     return nothing
 end
 
+function evaluate_fun!(de, model, proposal)
+    if in_bounds(de, proposal)
+        proposal.weight = model.model(proposal.Θ)
+    else
+        proposal.weight = -Inf
+    end
+    return nothing
+end
+
 """
 Returns parameters names.
 * `model`: model containing a likelihood function with data and priors
@@ -134,7 +143,8 @@ Update particle based on Metropolis-Hastings rule.
 * `proposal`: proposal particle
 * `log_adj`: an adjustment term for snooker update
 """
-function update_particle!(de, current, proposal, log_adj=0.0)
+
+function Metropolis_Hastings_update!(de, current, proposal, log_adj=0.0)
     @unpack iter,burnin = de
     i = iter - burnin
     accepted = accept(proposal.weight, current.weight, log_adj)
@@ -159,6 +169,31 @@ function project(p1::Particle, p2::Particle)
 end
 
 norm(p::Particle) = norm(p.Θ)
+
+function greedy_update!(de, current, proposal)
+    if proposal.weight > current.weight
+        current.Θ = proposal.Θ
+        current.weight = proposal.weight
+     end
+    return nothing
+end
+
+function max_particle(particles)
+    mx = particles[1]
+    for p in particles
+        if p.weight > mx.weight
+            px = p
+        end
+    end
+    return mx
+end
+
+function get_optimal(model, particles)
+    mxp = max_particle(particles)
+    Θ = NamedTuple{Symbol.(model.names)}(mxp.Θ)
+    max_val = mxp.weight
+    return Θ,max_val
+end
 
 # Type-stable arithmatic operations for Union{Array{T,1},T} types (which return Any otherwise)
 import Base: +, - ,*

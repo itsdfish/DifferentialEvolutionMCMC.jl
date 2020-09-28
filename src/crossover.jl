@@ -10,16 +10,16 @@ function crossover!(model, de, group)
             # generate the proposal
             proposal,log_adj = snooker_update!(de, pt, group)
             # compute the weight of the proposal: prior loglikelihood + data loglikelihood
-            compute_posterior!(de, model, proposal)
+            de.evaluate_fitness!(de, model, proposal)
             # accept proposal according to Metropolis-Hastings rule
-            update_particle!(de, pt, proposal, log_adj)
+            de.update_particle!(de, pt, proposal, log_adj)
         else
             # generate the proposal
             proposal = de.generate_proposal(de, pt, group)
             # compute the weight of the proposal: prior loglikelihood + data loglikelihood
-            compute_posterior!(de, model, proposal)
+            de.evaluate_fitness!(de, model, proposal)
             # accept proposal according to Metropolis-Hastings rule
-            update_particle!(de, pt, proposal)
+            de.update_particle!(de, pt, proposal)
         end
     end
     return nothing
