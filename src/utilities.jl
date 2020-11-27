@@ -14,9 +14,9 @@ function init_particle!(model, de, p, n_iter)
     return nothing
 end
 
-function priorlike(model, p::Particle{Array{T,1}}) where {T <: Real}
-    return sum(logpdf.(model.priors, p.Θ))
-end
+# function priorlike(model, p::Particle{Array{T,1}}) where {T <: Real}
+#     return sum(logpdf.(model.priors, p.Θ))
+# end
 
 function priorlike(model, p)
     LL = 0.0
