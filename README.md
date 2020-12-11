@@ -39,14 +39,12 @@ Next, define a function for the log likelihood which accepts the parameters (in 
 function loglike(μ, σ, data)
     return sum(logpdf.(Normal(μ, σ), data))
 end
-
-loglike(θ) = loglike(θ..., data)
 ```
 
 Create a model object containing the prior and loglikelihood function and create a differential evolution object. Default settings can be overriden with keyword arguments.
 
 ```julia
-model = DEModel(priors=priors, model=loglike)
+model = DEModel(priors=priors, model=loglike, data=data)
 
 de = DE(bounds=bounds, burnin=1000, priors=priors)
 
