@@ -142,9 +142,7 @@ end
         return logpdf(Binomial(data.N, θ), data.k)
     end
 
-    loglike(θ) = loglike(θ..., data)
-
-    model = DEModel(priors=priors, model=loglike)
+    model = DEModel(priors=priors, model=loglike, data=data)
     de = DE(;priors=priors, bounds=bounds, burnin=1500)
     n_iter = 3000
     groups = sample_init(model, de, n_iter)
