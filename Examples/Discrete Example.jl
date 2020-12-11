@@ -29,9 +29,7 @@ function loglike(idx, μs, data)
     return LL
 end
 
-loglike(θ) = loglike(θ..., data)
-
-model = DEModel(priors=priors, model=loglike)
+model = DEModel(priors=priors, model=loglike, data=data)
 
 de = DE(bounds=bounds, burnin=1000, priors=priors, Np=15)
 n_iter = 2000

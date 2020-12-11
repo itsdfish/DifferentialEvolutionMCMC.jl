@@ -22,9 +22,7 @@ end
 
 # loglike(θ, data) = logpdf(Binomial(data.N, θ), data.k)
 
-loglike(θ) = loglike(θ..., data)
-
-model = DEModel(priors=priors, model=loglike)
+model = DEModel(priors=priors, model=loglike, data=data)
 
 de = DE(bounds=bounds, burnin=1000, priors=priors, σ=.01)
 n_iter = 2000
