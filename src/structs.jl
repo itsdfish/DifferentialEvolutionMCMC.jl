@@ -63,9 +63,9 @@ struct DEModel{F,L,T} <: AbstractModel where {F <: Function,L,T}
     names::T
 end
 
-function DEModel(args...;priors, model, names=String.(keys(priors)), data, kwargs...)
+function DEModel(args...; priors, model, names=String.(keys(priors)), data, kwargs...)
     priors′ = values(priors)
-    return DEModel(priors′, x->model(x..., args..., data, kwargs...), names)
+    return DEModel(priors′, x->model(x..., args..., data; kwargs...), names)
  end
 
 """
