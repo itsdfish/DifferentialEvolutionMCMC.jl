@@ -16,9 +16,7 @@ function loglike(μ, σ, data)
     return sum(logpdf.(Normal(μ, σ), data))
 end
 
-loglike(θ) = loglike(θ..., data)
-
-model = DEModel(priors=priors, model=loglike)
+model = DEModel(priors=priors, model=loglike, data=data)
 
 de = DE(bounds=bounds, burnin=1000, priors=priors)
 n_iter = 2000
