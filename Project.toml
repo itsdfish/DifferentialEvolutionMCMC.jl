@@ -1,7 +1,7 @@
 name = "DifferentialEvolutionMCMC"
 uuid = "607db5a9-722a-4af8-9a06-1810c0fe385b"
 authors = ["itsdfish <itsdfish@gmail.com> and contributors"]
-version = "0.4.2"
+version = "0.4.3"
 
 [deps]
 AbstractMCMC = "80f14c24-f653-4e6a-9b94-39d6b0f70001"
@@ -18,7 +18,6 @@ Requires = "ae029012-a4dd-5104-9daa-d747884805df"
 SafeTestsets = "1bc83da4-3b8d-516f-aca4-4fe02f6d838f"
 SequentialSamplingModels = "0e71a2a6-2b30-4447-8742-d083a85e82d1"
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
-Turing = "fce5fe82-541a-59a6-adf8-730c64b5f9a0"
 
 [compat]
 AbstractMCMC = "0.5, 1.0.0, 2.0"
@@ -34,11 +33,12 @@ Requires = "1.0"
 SafeTestsets = "0.0.1"
 SequentialSamplingModels = "0.1.0"
 StatsBase = "0.32,0.33"
-Turing = "0.15.0"
+Turing = "0.14.0,0.15.0"
 julia = "1"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+Turing = "fce5fe82-541a-59a6-adf8-730c64b5f9a0"
 
 [targets]
-test = ["Test"]
+test = ["Test","Turing"]
