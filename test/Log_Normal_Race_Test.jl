@@ -6,8 +6,8 @@ Random.seed!(59391)
 dist = LNR(μ=[-2.,-2.,-3.,-3], σ=1.0, ϕ=.5)
 data = rand(dist, 100)
 
-function loglike(μ, σ, ϕ, data)
-    dist = LNR(μ=μ, σ=σ, ϕ=ϕ)
+function loglike(data, μ, σ, ϕ)
+    dist = LNR(μ, σ, ϕ)
     return sum(logpdf.(dist, data))
 end
 

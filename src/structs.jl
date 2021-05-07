@@ -65,7 +65,7 @@ end
 
 function DEModel(args...; priors, model, names=String.(keys(priors)), data, kwargs...)
     priors′ = values(priors)
-    return DEModel(priors′, x->model(x..., args..., data; kwargs...), names)
+    return DEModel(priors′, x->model(data, args..., x...; kwargs...), names)
  end
 
 """

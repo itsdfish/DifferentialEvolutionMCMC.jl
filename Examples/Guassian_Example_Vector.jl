@@ -12,7 +12,8 @@ bounds = ((-Inf,Inf),(0.0,Inf))
 
 data = rand(Normal(0.0, 1.0), 50)
 
-function loglike(data, μ, σ)
+function loglike(data, θ...)
+    μ,σ = θ
     return sum(logpdf.(Normal(μ, σ), data))
 end
 

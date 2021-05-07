@@ -13,13 +13,13 @@ using SafeTestsets
 
     bounds = ((0,1),)
 
-    function loglike(θ, data)
+    function loglike(data, θ)
         return logpdf(Binomial(data.N, θ), data.k)
     end
 
-    model = DEModel(priors=priors, model=loglike, data=data)
+    model = DEModel(;priors, model=loglike, data)
 
-    de = DE(;priors=priors, bounds=bounds, burnin=1500)
+    de = DE(;priors, bounds, burnin=1500)
     n_iter = 3000
     chains = sample(model, de, n_iter)
     μθ = describe(chains)[1][:,:mean][1]

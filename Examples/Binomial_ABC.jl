@@ -12,7 +12,7 @@ N = 10
 k = rand(Binomial(N, .5))
 data = (N = N,k = k)
 
-function loglike(θ, data)
+function loglike(data, θ)
     @unpack N,k = data
     n_sim = 10^4
     counter(_) = rand(Binomial(N, θ)) == k ? 1 : 0
@@ -22,9 +22,9 @@ end
 
 # loglike(θ, data) = logpdf(Binomial(data.N, θ), data.k)
 
-model = DEModel(priors=priors, model=loglike, data=data)
+model = DEModel(;priors, model=loglike, data)
 
-de = DE(bounds=bounds, burnin=1000, priors=priors, σ=.01)
+de = DE(;bounds, burnin=1000, priors, σ=.01)
 n_iter = 2000
 @elapsed chains = sample(model, de, MCMCThreads(), n_iter, progress=true)
 println(chains)

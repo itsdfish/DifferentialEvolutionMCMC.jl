@@ -16,12 +16,12 @@ priors = (
 
 bounds = ((0.0,Inf), (0.0,Inf), (0.0,Inf), (0.0,min_rt))
 
-function loglike(ν, A, k, τ, data)
+function loglike(data, ν, A, k, τ)
     dist = LBA(;ν, A, k, τ) 
     return logpdf.(dist, data...) |> sum
 end
 
-model = DEModel(priors=priors, model=loglike, data=(choice,rt))
+model = DEModel(;priors, model=loglike, data=(choice,rt))
 
 de = DE(;bounds, burnin=1500, priors)
 n_iter = 3000
