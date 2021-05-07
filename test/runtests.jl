@@ -63,7 +63,7 @@ end
 
     data = (N = 10,k = 5)
 
-    function loglike(θ, data)
+    function loglike(data, θ)
         return logpdf(Binomial(data.N, θ), data.k)
     end
 

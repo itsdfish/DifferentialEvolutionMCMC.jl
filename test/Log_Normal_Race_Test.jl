@@ -15,8 +15,8 @@ minRT = minimum(x -> x[2], data)
 priors = (μ = (Normal(0, 3), 4),σ = (truncated(Cauchy(0, 1), 0.0, Inf),),
     ϕ = (Uniform(0., minRT),))
 bounds = ((-Inf,0.),(1e-10,Inf),(0.,minRT))
-model = DEModel(priors=priors, model=loglike, data=data)
-de = DE(;priors=priors, bounds=bounds, burnin=2000)
+model = DEModel(;priors, model=loglike, data)
+de = DE(;priors, bounds, burnin=2000)
 n_iter = 4000
 chains = sample(model, de, n_iter)
 μ_de = describe(chains)[1][:,:mean]
