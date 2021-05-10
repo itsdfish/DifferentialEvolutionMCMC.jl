@@ -31,6 +31,37 @@ using SafeTestsets
     @test rhat ≈ 1.0 atol = .01
 end
 
+@safetestset "Discard Burnin" begin
+    using DifferentialEvolutionMCMC, Test, Random, Parameters, Distributions
+    import DifferentialEvolutionMCMC: select_groups, select_particles, shift_particles!, sample_init
+    Random.seed!(29542)
+    N = 10
+    k = rand(Binomial(N, .5))
+    data = (N = N,k = k)
+    priors = (
+        θ = (Beta(1, 1),),
+    )
+
+    bounds = ((0,1),)
+
+    function loglike(data, θ)
+        return logpdf(Binomial(data.N, θ), data.k)
+    end
+
+    model = DEModel(;priors, model=loglike, data)
+    
+    burnin = 1500
+    n_iter = 3000
+
+    de = DE(;priors, bounds, burnin, discard_burnin=false)
+    chains = sample(model, de, n_iter)
+    @test length(chains) == n_iter
+
+    de = DE(;priors, bounds, burnin)
+    chains = sample(model, de, n_iter)
+    @test length(chains) == burnin
+end
+
 @safetestset "Gaussian" begin
     include("Guassian_Test.jl")
 end

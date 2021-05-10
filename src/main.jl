@@ -115,7 +115,7 @@ and posterior summaries
 function bundle_samples(model::DEModel, de::DE, groups, n_iter)
     particles = vcat(groups...)
     Np = length(particles)
-    Ns = n_iter - de.burnin
+    Ns = de.discard_burnin ? n_iter - de.burnin : n_iter
     all_names = get_names(model, particles[1])
     n_parms = length(all_names)
     Nnames = length(model.names)

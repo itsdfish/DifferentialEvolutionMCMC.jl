@@ -4,6 +4,7 @@ Differential Evolution MCMC object
 * `Np`: number of particles per group. Default = number of parameters * 3 if
     priors are passed
 * `burnin`: number of burnin iterations. Default = 1000
+* `discard_burnin`: indicates whether burnin samples are discarded. Default is true.
 * `α`: migration probability. Default = .1
 * `β`: mutation probability. Default = .1
 * `ϵ`: noise in crossover step. Default = .001
@@ -32,6 +33,7 @@ mutable struct DE{T1,F <: Function} <: AbstractSampler
     n_groups::Int64
     Np::Int64
     burnin::Int64
+    discard_burnin::Bool
     α::Float64
     β::Float64
     ϵ::Float64
@@ -42,13 +44,14 @@ mutable struct DE{T1,F <: Function} <: AbstractSampler
     generate_proposal::F
 end
 
-function DE(;n_groups=4, priors=nothing, Np=num_parms(priors) * 3, burnin=1000, α=.1, β=.1, ϵ=.001,
-    σ=.05, κ=1.0, bounds, generate_proposal=random_gamma)
+function DE(;n_groups=4, priors=nothing, Np=num_parms(priors) * 3, burnin=1000, 
+    discard_burnin=true, α=.1, β=.1, ϵ=.001, σ=.05, κ=1.0, bounds, 
+    generate_proposal=random_gamma)
     if (α > 0) && (n_groups == 1)
         α = 0.0
         @warn "migration probability α > 0 but n_groups == 1. Changing α = 0.0"
     end
-    return DE(n_groups, Np, burnin, α, β, ϵ, σ, κ, bounds, 1, generate_proposal)
+    return DE(n_groups, Np, burnin, discard_burnin, α, β, ϵ, σ, κ, bounds, 1, generate_proposal)
 end
 
 """

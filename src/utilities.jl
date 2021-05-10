@@ -6,7 +6,7 @@ Initializes values for a particle
 * `n_iter`: the number of iterations
 """
 function init_particle!(model, de, p, n_iter)
-    N = n_iter - de.burnin
+    N = de.discard_burnin ? n_iter - de.burnin : n_iter
     p.samples = typeof(p.samples)(undef, N, length(p.Θ))
     p.accept = fill(false, N)
     p.weight = priorlike(model, p) + model.model(p.Θ)
@@ -98,8 +98,8 @@ Selects between mutation and crossover step with probability β
 * `groups`: groups of particles
 """
 function store_samples!(de, groups)
-    de.iter <= de.burnin ? (return) : nothing
-    i = de.iter - de.burnin
+    (de.iter <= de.burnin && de.discard_burnin) ? (return) : nothing
+    i = de.discard_burnin ? de.iter - de.burnin : de.iter
     for group in groups
         for p in group
             add_sample!(p, i)
@@ -134,15 +134,15 @@ Update particle based on Metropolis-Hastings rule.
 """
 function update_particle!(de, current, proposal)
     @unpack iter,burnin = de
-    i = iter - burnin
+    i = de.discard_burnin ? iter - burnin : iter
     accepted = accept(proposal.weight, current.weight)
     if accepted
         current.Θ = proposal.Θ
         current.weight = proposal.weight
     end
-    if iter > burnin
-         current.accept[i] = accepted
-         current.lp[i] = current.weight
+    if i > 0
+        current.accept[i] = accepted
+        current.lp[i] = current.weight
      end
     return nothing
 end
