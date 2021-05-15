@@ -6,8 +6,12 @@ Initializes values for a particle
 * `n_iter`: the number of iterations
 """
 function init_particle!(model, de, p, n_iter)
-    N = n_iter + de.initial_n
+    @unpack initial_n = de
+    N = n_iter + initial_n
     p.samples = typeof(p.samples)(undef, N, length(p.Θ))
+    for i in 1:initial_n 
+        p.samples[i,:] = sample_prior(model.priors)
+    end
     p.accept = fill(false, N)
     p.weight = priorlike(model, p) + model.model(p.Θ)
     p.lp = fill(0.0, N)
@@ -162,6 +166,7 @@ function greedy_update!(de, current, proposal)
     return nothing
 end
 
+# project p1 on to p2
 function project(p1::Particle, p2::Particle)
     v1,v2 = (0.0,0.0)
     for (Θ1,Θ2) in zip(p1.Θ, p2.Θ)
