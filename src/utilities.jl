@@ -160,17 +160,6 @@ function Metropolis_Hastings_update!(de, current, proposal, log_adj=0.0)
     return nothing
 end
 
-function project(p1::Particle, p2::Particle)
-    v1,v2 = (0.0,0.0)
-    for (Θ1,Θ2) in zip(p1.Θ, p2.Θ)
-        v1 += sum(Θ1 .* Θ2)
-        v2 += sum(Θ2.^2)
-    end
-    return p2*(v1/v2)
-end
-
-norm(p::Particle) = norm(p.Θ)
-
 function greedy_update!(de, current, proposal)
     if proposal.weight > current.weight
         current.Θ = proposal.Θ
@@ -178,6 +167,17 @@ function greedy_update!(de, current, proposal)
      end
     return nothing
 end
+
+function project(p1::Particle, p2::Particle)
+    v1,v2 = (0.0,0.0)
+    for (Θ1,Θ2) in zip(p1.Θ, p2.Θ)
+        v1 += sum(Θ1 .* Θ2)
+        v2 += sum(Θ2.^2)
+    end
+    return p2 * (v1 / fv2)
+end
+
+norm(p::Particle) = norm(p.Θ)
 
 function max_particle(particles)
     mx = particles[1]
