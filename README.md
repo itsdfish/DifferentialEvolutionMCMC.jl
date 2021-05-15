@@ -33,20 +33,22 @@ Generate simulated data from a normal distribution
 data = rand(Normal(0.0, 1.0), 50)
 ```
 
-Next, define a function for the log likelihood which accepts the parameters (in the order specififed in the priors) followed by the data. Create a second method that accepts a vector of parameters and maps it to the original function and makes a reference to the data.
+Next, define a function for the log likelihood which accepts the data follow by the parameters (in the order specififed in the priors). Create a second method that accepts a vector of parameters and maps it to the original function and makes a reference to the data.
 
 ```julia
-function loglike(μ, σ, data)
+function loglike(data, μ, σ)
     return sum(logpdf.(Normal(μ, σ), data))
 end
 ```
 
+Note that in some cases it might be preferable to pass your parameters as a vector rather than specify each parameter in the function definition. In such cases, you can use `loglike(data, θ...)`.
+
 Create a model object containing the prior and loglikelihood function and create a differential evolution object. Default settings can be overriden with keyword arguments.
 
 ```julia
-model = DEModel(priors=priors, model=loglike, data=data)
+model = DEModel(;priors, model=loglike, data)
 
-de = DE(bounds=bounds, burnin=1000, priors=priors)
+de = DE(;bounds, burnin=1000, priors)
 
 ```
 

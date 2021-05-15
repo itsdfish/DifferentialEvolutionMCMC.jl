@@ -115,7 +115,7 @@ function snooker_update!(de, Pt, group)
     recombination!(de, Pt, Θp)
     adj1 = norm(Θp - Pz)^(Np - 1)
     adj2 = norm(Pt - Pz)^(Np - 1)
-    return Θp,log(adj1/adj2)
+    return Θp,log(adj1 / adj2)
 end
 
 """

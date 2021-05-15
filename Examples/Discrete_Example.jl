@@ -21,7 +21,7 @@ priors = (
 
 bounds = ((1,2),(0.0,Inf))
 
-function loglike(idx, μs, data)
+function loglike(data, idx, μs)
     LL = 0.0
     for (i,id) in enumerate(idx)
         LL += logpdf(MvNormal([μs[id], μs[id]], 1.0), data[:,i])

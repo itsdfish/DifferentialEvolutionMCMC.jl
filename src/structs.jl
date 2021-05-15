@@ -4,6 +4,7 @@ Differential Evolution MCMC object
 * `Np`: number of particles per group. Default = number of parameters * 3 if
     priors are passed
 * `burnin`: number of burnin iterations. Default = 1000
+* `discard_burnin`: indicates whether burnin samples are discarded. Default is true.
 * `α`: migration probability. Default = .1
 * `β`: mutation probability. Default = .1
 * `ϵ`: noise in crossover step. Default = .001
@@ -18,8 +19,9 @@ Turner et al. 2012. You can also choose fixed_gamma, variable_gamma (see help) o
 Constructor signature:
 
 ```@example
-DE(;n_groups=4, priors=nothing, Np=num_parms(priors)*3,burnin=1000,
-    α=.1, β=.1, ϵ=.001, σ=.05, bounds, iter=1)
+DE(;n_groups=4, priors=nothing, Np=num_parms(priors) * 3, burnin=1000, 
+    discard_burnin=true, α=.1, β=.1, ϵ=.001, σ=.05, κ=1.0, bounds, 
+    generate_proposal=random_gamma)
 ```
 References:
 
@@ -35,6 +37,7 @@ mutable struct DE{T1,F1,F2,F3} <: AbstractSampler
     n_groups::Int64
     Np::Int64
     burnin::Int64
+    discard_burnin::Bool
     α::Float64
     β::Float64
     ϵ::Float64
@@ -48,14 +51,14 @@ mutable struct DE{T1,F1,F2,F3} <: AbstractSampler
     evaluate_fitness!::F3
 end
 
-function DE(;n_groups=4, priors=nothing, Np=num_parms(priors) * 3, burnin=1000, α=.1, β=.1, ϵ=.001,
+function DE(;n_groups=4, priors=nothing, Np=num_parms(priors) * 3, burnin=1000, discard_burnin=true, α=.1, β=.1, ϵ=.001,
     σ=.05, κ=1.0, θsnooker=0.0, bounds, generate_proposal=random_gamma, update_particle! = Metropolis_Hastings_update!,
     evaluate_fitness! = compute_posterior!)
     if (α > 0) && (n_groups == 1)
         α = 0.0
         @warn "migration probability α > 0 but n_groups == 1. Changing α = 0.0"
     end
-    return DE(n_groups, Np, burnin, α, β, ϵ, σ, κ, θsnooker, bounds, 1, generate_proposal, update_particle!,
+    return DE(n_groups, Np, burnin, discard_burnin, α, β, ϵ, σ, κ, θsnooker, bounds, 1, generate_proposal, update_particle!,
         evaluate_fitness!)
 end
 
@@ -73,7 +76,7 @@ end
 
 function DEModel(args...; priors, model, names=String.(keys(priors)), data, kwargs...)
     priors′ = values(priors)
-    return DEModel(priors′, x->model(x..., args..., data; kwargs...), names)
+    return DEModel(priors′, x->model(data, args..., x...; kwargs...), names)
  end
 
 """
