@@ -18,7 +18,6 @@ end
 
 model = DEModel(; priors, model=loglike, data)
 
-de = DE(;bounds, burnin=1000, priors, discard_burnin=false,
-    θsnooker=0.20 )
+de = DE(;bounds, burnin=1000, priors, θsnooker=0.00, sample=resample)
 n_iter = 2000
 chains = sample(model, de, MCMCThreads(), n_iter, progress=true)

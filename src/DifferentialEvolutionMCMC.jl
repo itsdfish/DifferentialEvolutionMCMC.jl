@@ -7,7 +7,7 @@ module DifferentialEvolutionMCMC
     import LinearAlgebra: norm
     export DE, Particle, DEModel, sample, MCMCThreads, fixed_gamma
     export variable_gamma, random_gamma, evaluate_fun!, compute_posterior!
-    export greedy_update!, optimize, get_optimal
+    export greedy_update!, optimize, get_optimal, resample
     include("structs.jl")
     include("main.jl")
     include("optimize.jl")

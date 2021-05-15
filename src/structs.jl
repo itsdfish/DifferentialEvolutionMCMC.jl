@@ -10,7 +10,7 @@ Differential Evolution MCMC object
 * `ϵ`: noise in crossover step. Default = .001
 * `σ`: standard deviation of noise added to parameters for mutation. Default = .05
 * `κ`: recombination with probability (1-κ) during crossover. Default = 1.0
-* `θsnooker`: sample along line x_i - z. Default = 0.0
+* `θsnooker`: sample along line x_i - z. Default = 0.0.  0.1 is recommended otherwise.
 * `bounds`: a vector of tuples for lower and upper bounds of each parameter
 * `iter`: current iteration
 * `generate_proposal`: a function that generates proposals. Default is the two mode proposal described in
@@ -33,7 +33,7 @@ References:
 
 * Turner, B. M., & Sederberg, P. B. (2012). Approximate Bayesian computation with differential evolution. Journal of Mathematical Psychology, 56(5), 375-385.
 """
-mutable struct DE{T1,F1,F2,F3} <: AbstractSampler
+mutable struct DE{T1,F1,F2,F3,F4} <: AbstractSampler
     n_groups::Int64
     Np::Int64
     burnin::Int64
@@ -43,23 +43,26 @@ mutable struct DE{T1,F1,F2,F3} <: AbstractSampler
     ϵ::Float64
     σ::Float64
     κ::Float64
+    thin_rate::Int64
     θsnooker::Float64
     bounds::T1
+    initial_n::Int64
     iter::Int64
     generate_proposal::F1
     update_particle!::F2
     evaluate_fitness!::F3
+    sample::F4
 end
 
-function DE(;n_groups=4, priors=nothing, Np=num_parms(priors) * 3, burnin=1000, discard_burnin=true, α=.1, β=.1, ϵ=.001,
-    σ=.05, κ=1.0, θsnooker=0.0, bounds, generate_proposal=random_gamma, update_particle! = Metropolis_Hastings_update!,
-    evaluate_fitness! = compute_posterior!)
-    if (α > 0) && (n_groups == 1)
+function DE(;n_groups=4, priors=nothing, Np=num_parms(priors) * 3, burnin=1000, discard_burnin=true, α=.1, β=.1, ϵ=.001, initial_n=0,
+    σ=.05, κ=1.0, thin_rate=1, θsnooker=0.0, bounds, generate_proposal=random_gamma, update_particle! = Metropolis_Hastings_update!,
+    evaluate_fitness! = compute_posterior!, sample=sample)
+    if  (n_groups == 1) && (α > 0)
         α = 0.0
         @warn "migration probability α > 0 but n_groups == 1. Changing α = 0.0"
     end
-    return DE(n_groups, Np, burnin, discard_burnin, α, β, ϵ, σ, κ, θsnooker, bounds, 1, generate_proposal, update_particle!,
-        evaluate_fitness!)
+    return DE(n_groups, Np, burnin, discard_burnin, α, β, ϵ, σ, κ, thin_rate, θsnooker, bounds, initial_n, 1, generate_proposal, 
+        update_particle!, evaluate_fitness!, sample)
 end
 
 """

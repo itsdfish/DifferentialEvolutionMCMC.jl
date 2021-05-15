@@ -6,7 +6,7 @@ Initializes values for a particle
 * `n_iter`: the number of iterations
 """
 function init_particle!(model, de, p, n_iter)
-    N = de.discard_burnin ? n_iter - de.burnin : n_iter
+    N = n_iter + de.initial_n
     p.samples = typeof(p.samples)(undef, N, length(p.Θ))
     p.accept = fill(false, N)
     p.weight = priorlike(model, p) + model.model(p.Θ)
@@ -68,14 +68,14 @@ function compute_posterior!(de, model, proposal)
     return nothing
 end
 
-function evaluate_fun!(de, model, proposal)
-    if in_bounds(de, proposal)
-        proposal.weight = model.model(proposal.Θ)
-    else
-        proposal.weight = -Inf
-    end
-    return nothing
-end
+# function evaluate_fun!(de, model, proposal)
+#     if in_bounds(de, proposal)
+#         proposal.weight = model.model(proposal.Θ)
+#     else
+#         proposal.weight = -Inf
+#     end
+#     return nothing
+# end
 
 """
 Returns parameters names.
@@ -109,11 +109,9 @@ Selects between mutation and crossover step with probability β
 * `groups`: groups of particles
 """
 function store_samples!(de, groups)
-    (de.iter <= de.burnin && de.discard_burnin) ? (return) : nothing
-    i = de.discard_burnin ? de.iter - de.burnin : de.iter
     for group in groups
         for p in group
-            add_sample!(p, i)
+            add_sample!(p, de.iter)
         end
     end
     return nothing
@@ -146,17 +144,13 @@ Update particle based on Metropolis-Hastings rule.
 """
 
 function Metropolis_Hastings_update!(de, current, proposal, log_adj=0.0)
-    @unpack iter,burnin = de
     accepted = accept(proposal.weight, current.weight, log_adj)
-    i = de.discard_burnin ? iter - burnin : iter
     if accepted
         current.Θ = proposal.Θ
         current.weight = proposal.weight
     end
-    if i > 0
-        current.accept[i] = accepted
-        current.lp[i] = current.weight
-     end
+    current.accept[de.iter] = accepted
+    current.lp[de.iter] = current.weight
     return nothing
 end
 
@@ -174,7 +168,7 @@ function project(p1::Particle, p2::Particle)
         v1 += sum(Θ1 .* Θ2)
         v2 += sum(Θ2.^2)
     end
-    return p2 * (v1 / fv2)
+    return p2 * (v1 / v2)
 end
 
 norm(p::Particle) = norm(p.Θ)

@@ -113,20 +113,23 @@ and posterior summaries
 * `n_iter`: number of iterations
 """
 function bundle_samples(model::DEModel, de::DE, groups, n_iter)
+    @unpack burnin, discard_burnin = de
     particles = vcat(groups...)
     Np = length(particles)
-    Ns = de.discard_burnin ? n_iter - de.burnin : n_iter
+    Ns = discard_burnin ? n_iter - burnin : n_iter
+    offset = discard_burnin ? burnin : 0
     all_names = get_names(model, particles[1])
     n_parms = length(all_names)
     Nnames = length(model.names)
     v = fill(0.0, Ns, n_parms, Np)
     for (c,p) in enumerate(particles)
         for s in 1:Ns
+            sΔ = s + offset
             temp = Float64[]
             for ni in 1:Nnames
-                push!(temp, p.samples[s,ni]...)
+                push!(temp, p.samples[sΔ,ni]...)
             end
-            push!(temp, p.accept[s], p.lp[s])
+            push!(temp, p.accept[sΔ], p.lp[sΔ])
             v[s,:,c] = temp'
         end
     end
