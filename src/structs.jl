@@ -18,8 +18,9 @@ Turner et al. 2012. You can also choose fixed_gamma, variable_gamma (see help) o
 Constructor signature:
 
 ```@example
-DE(;n_groups=4, priors=nothing, Np=num_parms(priors)*3,burnin=1000,
-    α=.1, β=.1, ϵ=.001, σ=.05, bounds, iter=1)
+DE(;n_groups=4, priors=nothing, Np=num_parms(priors) * 3, burnin=1000, 
+    discard_burnin=true, α=.1, β=.1, ϵ=.001, σ=.05, κ=1.0, bounds, 
+    generate_proposal=random_gamma)
 ```
 References:
 

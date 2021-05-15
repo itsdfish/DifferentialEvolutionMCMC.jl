@@ -10,7 +10,7 @@ Function signature
     sample(model::DEModel, de::DE, n_iter::Int; progress=false, kwargs...)
 ```
 """
-sample(model::DEModel, de::DE, n_iter::Int; progress=false, kwargs...) = _sample(model::DEModel, de::DE, n_iter::Int; progress=progress, stepfun=step!, kwargs...)
+sample(model::DEModel, de::DE, n_iter::Int; progress=false, kwargs...) = _sample(model::DEModel, de::DE, n_iter::Int; progress, stepfun=step!, kwargs...)
 
 function _sample(model::DEModel, de::DE, n_iter::Int; progress=false, stepfun=step!, kwargs...)
     meter = Progress(n_iter)

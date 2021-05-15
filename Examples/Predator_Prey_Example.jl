@@ -56,10 +56,12 @@ n_iter = 3000
 @time chains = sample(model, de, n_iter, progress=true)
 
 chain_array = Array(chains)
-pl = scatter(sol1.t, data');
+pl = plot(grid=false)
 for k in 1:300 
-    resol = solve(remake(problem, p=chain_array[rand(1:1500), 1:4]),Tsit5(),saveat=0.1)
-    plot!(resol, alpha=0.1, color = "#BBBBBB", legend = false)
+    p = chain_array[rand(1:2000),:]
+    resol = solve(remake(problem, p=p[1:4]),Tsit5(), saveat=0.1)
+    sim_data = Array(resol) + p[end] * randn(size(Array(resol)))
+    plot!(resol.t, sim_data', alpha=0.1, color = "#BBBBBB", legend = false)
 end
-
+scatter!(sol1.t, data');
 plot!(sol1, w=1, legend = false)
