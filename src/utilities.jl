@@ -6,10 +6,10 @@ Initializes values for a particle
 * `n_iter`: the number of iterations
 """
 function init_particle!(model, de, p, n_iter)
-    @unpack initial_n = de
-    N = n_iter + initial_n
+    @unpack n_initial = de
+    N = n_iter + n_initial
     p.samples = typeof(p.samples)(undef, N, length(p.Θ))
-    for i in 1:initial_n 
+    for i in 1:n_initial 
         p.samples[i,:] = sample_prior(model.priors)
     end
     p.accept = fill(false, N)
@@ -72,14 +72,14 @@ function compute_posterior!(de, model, proposal)
     return nothing
 end
 
-# function evaluate_fun!(de, model, proposal)
-#     if in_bounds(de, proposal)
-#         proposal.weight = model.model(proposal.Θ)
-#     else
-#         proposal.weight = -Inf
-#     end
-#     return nothing
-# end
+function evaluate_fun!(de, model, proposal)
+    if in_bounds(de, proposal)
+        proposal.weight = model.model(proposal.Θ)
+    else
+        proposal.weight = de.evaluate_fitness! == maximize! ? -Inf : Inf
+    end
+    return nothing
+end
 
 """
 Returns parameters names.
@@ -158,8 +158,16 @@ function Metropolis_Hastings_update!(de, current, proposal, log_adj=0.0)
     return nothing
 end
 
-function greedy_update!(de, current, proposal)
+function maximize!(de, current, proposal)
     if proposal.weight > current.weight
+        current.Θ = proposal.Θ
+        current.weight = proposal.weight
+     end
+    return nothing
+end
+
+function minimize!(de, current, proposal)
+    if proposal.weight < current.weight
         current.Θ = proposal.Θ
         current.weight = proposal.weight
      end
@@ -178,18 +186,19 @@ end
 
 norm(p::Particle) = norm(p.Θ)
 
-function max_particle(particles)
+function best_particle(particles, fun)
     mx = particles[1]
     for p in particles
-        if p.weight > mx.weight
-            px = p
+        if fun(p.weight, mx.weight)
+            mx = p
         end
     end
     return mx
 end
 
-function get_optimal(model, particles)
-    mxp = max_particle(particles)
+function get_optimal(de, model, particles)
+    fun = de.evaluate_fitness! == maximize! ? (>) : (<) 
+    mxp = best_particle(particles, fun)
     Θ = NamedTuple{Symbol.(model.names)}(mxp.Θ)
     max_val = mxp.weight
     return Θ,max_val

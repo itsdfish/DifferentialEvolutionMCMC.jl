@@ -17,7 +17,7 @@ function _sample(model::DEModel, de::DE, n_iter::Int; progress=false, stepfun=st
     # initialize particles based on prior distribution
     groups = sample_init(model, de, n_iter)
     for iter in 1:n_iter
-        de.iter = iter + de.initial_n
+        de.iter = iter + de.n_initial
         # explicitly pass groups so parallel works
         groups = stepfun(model, de, groups)
         progress ? next!(meter) : nothing
@@ -42,7 +42,7 @@ Function signature
 ```
 """
 function sample(model::DEModel, de::DE, ::MCMCThreads, n_iter::Int; progress=false, kwargs...)
-    _sample(model::DEModel, de::DE, n_iter::Int; progress=progress, stepfun=pstep!, kwargs...)
+    _sample(model::DEModel, de::DE, n_iter::Int; progress, stepfun=pstep!, kwargs...)
 end
 
 """

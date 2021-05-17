@@ -1,28 +1,24 @@
 cd(@__DIR__)
 using Revise, DifferentialEvolutionMCMC, Random, Distributions
+import DifferentialEvolutionMCMC: minimize!
 
 Random.seed!(50514)
 
 priors = (
-    μ = (Uniform(-10, 10),),
-    σ = (Uniform(0, 10),)
+    x = (Uniform(-5, 5), 2),
 )
 
-bounds = ((-Inf,Inf),(0.0,Inf))
+bounds = ((-5.0,5.0),)
 
-data = rand(Normal(0.0, 1.0), 50)
-
-function loglike(μ, σ, data)
-    return sum(logpdf.(Normal(μ, σ), data))
+function rosenbrock2d(data, x)
+    return (1.0 - x[1])^2 + 100.0 * (x[2] - x[1]^2)^2
 end
 
-loglike(θ) = loglike(θ..., data)
+model = DEModel(; priors, model=rosenbrock2d, data=nothing)
 
-model = DEModel(priors=priors, model=loglike)
-
-de = DE(bounds=bounds, Np=5, n_groups=2, update_particle! = greedy_update!,
+de = DE(bounds=bounds, Np=6, n_groups=1, update_particle! = minimize!,
     evaluate_fitness! = evaluate_fun!)
-n_iter = 2000
-particles = optimize(model, de, MCMCThreads(), n_iter, progress=true)
-results = get_optimal(model, particles)
+n_iter = 10000
+particles = optimize(model, de, MCMCThreads(), n_iter, progress=true);
+results = get_optimal(de, model, particles)
 println(results)

@@ -25,20 +25,20 @@ function crossover!(model, de, group)
     return nothing
 end
 
-function resample(group_diff, n, replace)
+function resample(de, group_diff, n, replace)
     P = sample(group_diff, n; replace)
     P′ = similar(P)
+    mx_idx = de.iter - 1
     for i in 1:n 
-        idx = rand(1:size(P[i].samples)[1])
+        idx = rand(1:mx_idx)
         P′[i] = Particle(;Θ=P[i].samples[idx,:])
     end
     return P′
 end
 
-function sample(group_diff::Vector{<:Particle}, n, replace) 
+function sample(de::DE, group_diff, n, replace) 
     return sample(group_diff, n; replace)
 end
-
 
 """
 Generate proposal according to θ' = θt + γ1(θm − θn) + γ2(θb − θt) + b
@@ -54,7 +54,7 @@ function random_gamma(de, Pt, group)
     # group without Pb
     group_diff = setdiff(group, [Pt])
     # sample particles for θm and θn
-    Pm,Pn = de.sample(group_diff, 2, false) 
+    Pm,Pn = de.sample(de, group_diff, 2, false) 
     # sample gamma weights
     γ₁ = rand(Uniform(.5, 1))
     # set γ₂ = 0 after burnin
@@ -79,7 +79,7 @@ function fixed_gamma(de, Pt, group)
     Np = length(Pt.Θ)
     group_diff = setdiff(group, [Pt])
     # sample particles for θm and θn
-    Pm,Pn = de.sample(group_diff, 2, false) 
+    Pm,Pn = de.sample(de, group_diff, 2, false) 
     # sample gamma weights
     γ = 2.38
     # sample noise for each parameter
@@ -102,7 +102,7 @@ function variable_gamma(de, Pt, group)
     Np = length(Pt.Θ)
     group_diff = setdiff(group, [Pt])
     # sample particles for θm and θn
-    Pm,Pn = de.sample(group_diff, 2, false) 
+    Pm,Pn = de.sample(de, group_diff, 2, false) 
     γ = 2.38 / sqrt(2 * Np)
     # sample noise for each parameter
     b = Uniform(-de.ϵ, de.ϵ)
@@ -117,7 +117,7 @@ function snooker_update!(de, Pt, group)
     Np = length(Pt.Θ)
     group_diff = setdiff(group, [Pt])
     # sample particles for θm and θn
-    Pz,Pm,Pn = de.sample(group_diff, 3, false) 
+    Pz,Pm,Pn = de.sample(de, group_diff, 3, false) 
     Pd = Pt - Pz
     Pr1 = project(Pm, Pd)
     Pr2 = project(Pn, Pd)

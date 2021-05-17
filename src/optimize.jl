@@ -10,7 +10,7 @@ Function signature
     sample(model::DEModel, de::DE, n_iter::Int; progress=false, kwargs...)
 ```
 """
-optimize(model::DEModel, de::DE, n_iter::Int; progress=false, kwargs...) = _optimize(model::DEModel, de::DE, n_iter::Int; progress=progress, stepfun=step!, kwargs...)
+optimize(model::DEModel, de::DE, n_iter::Int; progress=false, kwargs...) = _optimize(model::DEModel, de::DE, n_iter::Int; progress, stepfun=step!, kwargs...)
 
 function _optimize(model::DEModel, de::DE, n_iter::Int; progress=false, stepfun=step!, kwargs...)
     meter = Progress(n_iter)
@@ -40,5 +40,5 @@ Function signature
 ```
 """
 function optimize(model::DEModel, de::DE, ::MCMCThreads, n_iter::Int; progress=false, kwargs...)
-    _optimize(model::DEModel, de::DE, n_iter::Int; progress=progress, stepfun=pstep!, kwargs...)
+    _optimize(model::DEModel, de::DE, n_iter::Int; progress, stepfun=pstep!, kwargs...)
 end

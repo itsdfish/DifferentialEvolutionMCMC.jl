@@ -22,4 +22,3 @@ model = DEModel(; priors, model=loglike, data)
 de = DE(;bounds, burnin=1000, priors)
 n_iter = 2000
 chains = sample(model, de, MCMCThreads(), n_iter, progress=true)
-println(chains)

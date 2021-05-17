@@ -27,4 +27,3 @@ model = DEModel(;priors, model=loglike, data)
 de = DE(;bounds, burnin=1000, priors, σ=.01)
 n_iter = 2000
 @elapsed chains = sample(model, de, MCMCThreads(), n_iter, progress=true)
-println(chains)

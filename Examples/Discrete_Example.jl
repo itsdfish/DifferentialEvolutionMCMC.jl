@@ -34,4 +34,3 @@ model = DEModel(priors=priors, model=loglike, data=data)
 de = DE(bounds=bounds, burnin=1000, priors=priors, Np=15)
 n_iter = 2000
 @elapsed chains = sample(model, de, n_iter, progress=true)
-println(chains)

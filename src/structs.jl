@@ -46,7 +46,7 @@ mutable struct DE{T1,F1,F2,F3,F4} <: AbstractSampler
     thin_rate::Int64
     θsnooker::Float64
     bounds::T1
-    initial_n::Int64
+    n_initial::Int64
     iter::Int64
     generate_proposal::F1
     update_particle!::F2
@@ -54,14 +54,14 @@ mutable struct DE{T1,F1,F2,F3,F4} <: AbstractSampler
     sample::F4
 end
 
-function DE(;n_groups=4, priors=nothing, Np=num_parms(priors) * 3, burnin=1000, discard_burnin=true, α=.1, β=.1, ϵ=.001, initial_n=0,
+function DE(;n_groups=4, priors=nothing, Np=num_parms(priors) * 3, burnin=1000, discard_burnin=true, α=.1, β=.1, ϵ=.001, n_initial=0,
     σ=.05, κ=1.0, thin_rate=1, θsnooker=0.0, bounds, generate_proposal=random_gamma, update_particle! = Metropolis_Hastings_update!,
     evaluate_fitness! = compute_posterior!, sample=sample)
     if  (n_groups == 1) && (α > 0)
         α = 0.0
         @warn "migration probability α > 0 but n_groups == 1. Changing α = 0.0"
     end
-    return DE(n_groups, Np, burnin, discard_burnin, α, β, ϵ, σ, κ, thin_rate, θsnooker, bounds, initial_n, 1, generate_proposal, 
+    return DE(n_groups, Np, burnin, discard_burnin, α, β, ϵ, σ, κ, thin_rate, θsnooker, bounds, n_initial, 1, generate_proposal, 
         update_particle!, evaluate_fitness!, sample)
 end
 
