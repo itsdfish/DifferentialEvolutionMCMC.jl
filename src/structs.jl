@@ -14,7 +14,7 @@ Differential Evolution MCMC object
 * `bounds`: a vector of tuples for lower and upper bounds of each parameter
 * `iter`: current iteration
 * `generate_proposal`: a function that generates proposals. Default is the two mode proposal described in
-Turner et al. 2012. You can also choose fixed_gamma, variable_gamma (see help) or pass a custom function
+Turner et al. 2012. You can also choose `fixed_gamma`, `variable_gamma` (see help) or pass a custom function
 
 Constructor signature:
 
