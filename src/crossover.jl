@@ -25,13 +25,13 @@ function crossover!(model, de, group)
     return nothing
 end
 
-function resample(de, group_diff, n, replace)
-    P = sample(group_diff, n; replace)
-    P′ = similar(P)
+function resample(de, group, n, replace)
+    P′ = Vector{eltype(group)}(undef,n)
     mx_idx = de.iter - 1
     for i in 1:n 
         idx = rand(1:mx_idx)
-        P′[i] = Particle(;Θ=P[i].samples[idx,:])
+        j = rand(1:length(group))
+        P′[i] = Particle(;Θ=group[j].samples[idx,:])
     end
     return P′
 end
@@ -115,9 +115,7 @@ end
 
 function snooker_update!(de, Pt, group)
     Np = length(Pt.Θ)
-    group_diff = setdiff(group, [Pt])
-    # sample particles for θm and θn
-    Pz,Pm,Pn = de.sample(de, group_diff, 3, false) 
+    Pz,Pm,Pn = de.sample(de, group, 3, false) 
     Pd = Pt - Pz
     Pr1 = project(Pm, Pd)
     Pr2 = project(Pn, Pd)

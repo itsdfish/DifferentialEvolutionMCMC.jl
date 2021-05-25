@@ -1,5 +1,5 @@
 cd(@__DIR__)
-using DifferentialEvolutionMCMC, Random, Distributions, DataFrames
+using DifferentialEvolutionMCMC, Random, Distributions
 
 Random.seed!(50514)
 
@@ -22,6 +22,6 @@ end
 model = DEModel(; priors, model=loglike, data)
 
 de = DE(;bounds, burnin=5000, priors, sample=resample, n_initial=(n_μ+1)*10, 
-Np=4, n_groups=1, θsnooker=.1)
+    Np=3, n_groups=1, θsnooker=.1)
 n_iter = 50_000
 chains = sample(model, de, MCMCThreads(), n_iter, progress=true)

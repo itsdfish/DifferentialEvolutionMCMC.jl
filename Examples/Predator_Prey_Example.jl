@@ -53,7 +53,7 @@ end
 model = DEModel(problem; priors, model=loglik, data)
 de = DE(;bounds, burnin=1000, priors)
 n_iter = 3000
-@time chains = sample(model, de, n_iter, progress=true)
+chains = sample(model, de, n_iter, progress=true)
 
 chain_array = Array(chains)
 pl = plot(grid=false)
