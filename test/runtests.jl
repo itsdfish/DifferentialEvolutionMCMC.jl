@@ -1,5 +1,9 @@
 using SafeTestsets
 
+@safetestset "Optimization" begin
+    include("optimization_tests.jl")
+ end
+
 @safetestset "Binomial Model" begin
     using DifferentialEvolutionMCMC, Test, Random, Turing, Parameters, Distributions
     import DifferentialEvolutionMCMC: select_groups, select_particles, shift_particles!, sample_init
@@ -70,37 +74,6 @@ end
    include("Log_Normal_Race_Test.jl")
 end
 
-@safetestset "rastrigin" begin 
-    using Test, DifferentialEvolutionMCMC, Random, Distributions
-    import DifferentialEvolutionMCMC: minimize!
-
-    Random.seed!(514)
-
-    priors = (
-        x = (Uniform(-5, 5), 2),
-    )
-
-    bounds = ((-5.0,5.0),)
-
-    function rastrigin(data, x)
-        A = 10.0
-        n = length(x)
-        y = A * n
-        for  i in 1:n
-            y +=  + x[i]^2 - A * cos(2 * π * x[i])
-        end
-        return y 
-    end
-
-    model = DEModel(; priors, model=rastrigin, data=nothing)
-
-    de = DE(bounds=bounds, Np=6, n_groups=1, update_particle! = minimize!,
-        evaluate_fitness! = evaluate_fun!)
-    n_iter = 10000
-    particles = optimize(model, de, MCMCThreads(), n_iter, progress=true);
-    results = get_optimal(de, model, particles)
-    @test results[2] ≈ 0.0 atol = 1e-8
-end
 
 @safetestset "Migration" begin
     using DifferentialEvolutionMCMC, Test, Random, Turing, Parameters, Distributions

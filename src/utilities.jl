@@ -76,7 +76,7 @@ function evaluate_fun!(de, model, proposal)
     if in_bounds(de, proposal)
         proposal.weight = model.model(proposal.Θ)
     else
-        proposal.weight = de.evaluate_fitness! == maximize! ? -Inf : Inf
+        proposal.weight = de.update_particle! == maximize! ? -Inf : Inf
     end
     return nothing
 end
@@ -197,7 +197,7 @@ function best_particle(particles, fun)
 end
 
 function get_optimal(de, model, particles)
-    fun = de.evaluate_fitness! == maximize! ? (>) : (<) 
+    fun = de.update_particle!  == maximize! ? (>) : (<) 
     mxp = best_particle(particles, fun)
     Θ = NamedTuple{Symbol.(model.names)}(mxp.Θ)
     max_val = mxp.weight
