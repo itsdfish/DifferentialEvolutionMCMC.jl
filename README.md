@@ -1,4 +1,5 @@
-[![DOI](https://zenodo.org/badge/267567217.svg)](https://zenodo.org/badge/latestdoi/267567217)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5083368.svg)](https://doi.org/10.5281/zenodo.5083368)
+
 
 # DifferentialEvolutionMCMC
 
