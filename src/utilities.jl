@@ -13,15 +13,10 @@ function init_particle!(model, de, p, n_iter)
         p.samples[i,:] = sample_prior(model.priors)
     end
     p.accept = fill(false, N)
-    p.weight = priorlike(model, p) + model.model(p.Θ)
+    de.evaluate_fitness!(de, model, p)
     p.lp = fill(0.0, N)
     return nothing
 end
-
-# this does not seem to be used, but keep for now in case it is useful
-# function priorlike(model, p::Particle{Array{T,1}}) where {T <: Real}
-#     return sum(logpdf.(model.priors, p.Θ))
-# end
 
 function priorlike(model, p)
     LL = 0.0

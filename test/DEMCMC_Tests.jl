@@ -100,7 +100,7 @@ end
 
     @model turing_model(data) = begin
         minRT = minimum(x -> x[2], data)
-        μ ~ MvNormal(zeros(4), 3)
+        μ ~ MvNormal(zeros(4), 3 * I)
         σ ~ truncated(Cauchy(0, 1), 0.0, Inf)
         ϕ ~ Uniform(0.0, minRT)
         data ~ LNR(μ=μ, σ=σ, ϕ=ϕ)
