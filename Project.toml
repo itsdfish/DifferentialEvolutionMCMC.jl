@@ -1,7 +1,7 @@
 name = "DifferentialEvolutionMCMC"
 uuid = "607db5a9-722a-4af8-9a06-1810c0fe385b"
 authors = ["itsdfish"]
-version = "0.5.9"
+version = "0.5.10"
 
 [deps]
 AbstractMCMC = "80f14c24-f653-4e6a-9b94-39d6b0f70001"
@@ -17,13 +17,13 @@ StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 [compat]
 AbstractMCMC = "0.5, 1.0.0, 2.0, 3.0"
 Distributions = "0.22, 0.23, 0.24, 0.25"
-MCMCChains = "3.0, 4.0"
+MCMCChains = "4.0,5.0"
 Parameters = "0.12"
 ProgressMeter = "1.2"
 SafeTestsets = "0.0.1"
 SequentialSamplingModels = "0.1.0"
 StatsBase = "0.32,0.33"
-Turing = "0.14.0,0.15.0"
+Turing = "0.14.0,0.15.0,0.16,0.17,0.18"
 julia = "1"
 
 [extras]

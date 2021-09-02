@@ -1,5 +1,12 @@
 """
+    DE(;n_groups=4, priors=nothing, Np=num_parms(priors) * 3, burnin=1000, discard_burnin=true, α=.1, β=.1, ϵ=.001,
+        σ=.05, κ=1.0, θsnooker=0.0, bounds, n_initial=0, generate_proposal=random_gamma, update_particle! = Metropolis_Hastings_update!,
+        evaluate_fitness! = compute_posterior!, sample=sample)
+
 Differential Evolution MCMC object
+
+# Keywords
+
 * `n_groups`: number of groups of particles. Default = 4
 * `Np`: number of particles per group. Default = number of parameters * 3 if
     priors are passed

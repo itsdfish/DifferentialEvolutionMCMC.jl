@@ -1,14 +1,16 @@
 """
-Samples from the posterior distribution
+    optimize(model::DEModel, de::DE, n_iter::Int; progress=false, kwargs...)
+
+Finds optimal set of parameters.
+
+# Arguments
 * `model`: a model containing likelihood function with data and priors
 * `de`: differential evolution object
 * `n_iter`: number of iterations or samples
+
+# Keywords
 * `progress`: show progress (default false)
 
-Function signature
-```@example
-    sample(model::DEModel, de::DE, n_iter::Int; progress=false, kwargs...)
-```
 """
 optimize(model::DEModel, de::DE, n_iter::Int; progress=false, kwargs...) = _optimize(model::DEModel, de::DE, n_iter::Int; progress, stepfun=step!, kwargs...)
 
@@ -26,18 +28,18 @@ function _optimize(model::DEModel, de::DE, n_iter::Int; progress=false, stepfun=
 end
 
 """
-Samples from the posterior distribution with each group of particles on a seperarate thread for
-the mutation and crossover steps.
+    optimize(model::DEModel, de::DE, ::MCMCThreads, n_iter::Int; progress=false, kwargs...)
+
+Finds optimal set of parameters.
+
+# Arguments
 * `model`: a model containing likelihood function with data and priors
 * `de`: differential evolution object
 * `MCMCThreads`: pass MCMCThreads() object to run on multiple threads
 * `n_iter`: number of iterations or samples
-* `progress`: show progress (default false)
 
-Function signature
-```@example
-    sample(model::DEModel, de::DE, ::MCMCThreads, n_iter::Int; progress=false, kwargs...)
-```
+# Keywords
+* `progress`: show progress (default false)
 """
 function optimize(model::DEModel, de::DE, ::MCMCThreads, n_iter::Int; progress=false, kwargs...)
     _optimize(model::DEModel, de::DE, n_iter::Int; progress, stepfun=pstep!, kwargs...)
