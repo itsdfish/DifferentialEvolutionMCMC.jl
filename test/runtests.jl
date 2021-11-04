@@ -12,9 +12,9 @@ using SafeTestsets
     k = rand(Binomial(N, .5))
     data = (N = N,k = k)
     
-    prior_loglike(θ) = logpdf(beta(1, 1), θ)
+    prior_loglike(θ) = logpdf(Beta(1, 1), θ)
 
-    sample_prior() = rand(beta(1, 1))
+    sample_prior() = [rand(Beta(1, 1))]
 
     bounds = ((0,1),)
 
@@ -53,9 +53,9 @@ end
     k = rand(Binomial(N, .5))
     data = (N = N,k = k)
 
-    prior_loglike(θ) = logpdf(beta(1, 1), θ)
+    prior_loglike(θ) = logpdf(Beta(1, 1), θ)
 
-    sample_prior() = rand(beta(1, 1))
+    sample_prior() = [rand(Beta(1, 1))]
 
     bounds = ((0,1),)
 
@@ -73,13 +73,15 @@ end
         names
     )
 
-    de = DE(;bounds, burnin=1500, Np=3)
-
+    burnin = 1500
     n_iter = 3000
+
+    de = DE(; Np=4, bounds, burnin, discard_burnin=false)
+
     chains = sample(model, de, n_iter)
     @test length(chains) == n_iter
 
-    de = DE(;priors, bounds, burnin)
+    de = DE(; Np=4, bounds, burnin)
     chains = sample(model, de, n_iter)
     @test length(chains) == burnin
 end
@@ -110,20 +112,35 @@ end
         return true
     end
 
-    priors = (
-        θ = (Beta(1, 1),),
-    )
-    bounds = ((0,1),)
+    N = 10
+    k = rand(Binomial(N, .5))
+    data = (N = N,k = k)
+    
+    prior_loglike(θ) = logpdf(Beta(1, 1), θ)
 
-    data = (N = 10,k = 5)
+    sample_prior() = [rand(Beta(1, 1))]
+
+    bounds = ((0,1),)
 
     function loglike(data, θ)
         return logpdf(Binomial(data.N, θ), data.k)
     end
 
-    model = DEModel(priors=priors, model=loglike, data=data)
-    de = DE(;priors=priors, bounds=bounds, burnin=1500)
+    names = (:θ,)
+
+    model = DEModel(; 
+        sample_prior, 
+        prior_loglike, 
+        loglike, 
+        data,
+        names
+    )
+
+    burnin = 1500
     n_iter = 3000
+
+    de = DE(; Np=4, bounds, burnin, discard_burnin=false)
+
     groups = sample_init(model, de, n_iter)
     sub_group = select_groups(de, groups)
     c_groups = deepcopy(groups)

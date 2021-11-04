@@ -13,16 +13,16 @@ end
 
 function prior_loglike(μ, σ, ϕ)
     LL = 0.0
-    LL += logpdf(Normal(0, 3), 4), μ)
+    LL += sum(logpdf.(Normal(0, 3), μ))
     LL += logpdf(truncated(Cauchy(0, 1), 0.0, Inf), σ)
     LL += logpdf(Uniform(0., min_rt), ϕ)
 end
 
-function sample_loglike()
+function sample_prior()
     LL = 0.0
     μ = rand(Normal(0, 3), 4)
-    σ = logpdf(truncated(Cauchy(0, 1), 0.0, Inf))
-    ϕ = logpdf(Uniform(0, min_rt))
+    σ = rand(truncated(Cauchy(0, 1), 0.0, Inf))
+    ϕ = rand(Uniform(0, min_rt))
     return as_union([μ,σ,ϕ])
 end
 

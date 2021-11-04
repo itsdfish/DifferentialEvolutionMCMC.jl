@@ -5,10 +5,11 @@
     Random.seed!(514)
 
     function sample_prior()
-       return rand(Uniform(-5, 5), 2)
+       return [rand(Uniform(-5, 5), 2)]
     end
 
     bounds = ((-5.0,5.0),)
+    names = (:x,)
 
     function rastrigin(data, x)
         A = 10.0
@@ -48,12 +49,6 @@ end
 
     Random.seed!(50514)
 
-    # selects a random starting point for each parameter
-    priors = (
-        μ = (Uniform(-50, 50),),
-        σ = (Uniform(0, 50),),
-    )
-
     # bounds of parameters, same order as above
     bounds = (
         (-Inf, Inf), 
@@ -65,14 +60,40 @@ end
     end
 
     data = rand(Normal(0, 1), 100)
-    # a model object containing prior, model function and data
-    model = DEModel(; priors, model=loglike, data)
-    # optimization settings, which minimizes the function
-    de = DE(;bounds, Np=6, n_groups=1, update_particle! = maximize!,
-        evaluate_fitness! = evaluate_fun!)
-    # iterations of the optimizer
+
+    function prior_loglike(μ, σ)
+        LL = 0.0
+        LL += logpdf(Normal(0, 1), μ)
+        LL += logpdf(truncated(Cauchy(0, 1), 0, Inf), σ)
+        return LL
+    end
+    
+    function sample_prior()
+        μ = rand(Normal(0, 1))
+        σ = rand(truncated(Cauchy(0, 1), 0, Inf))
+        return [μ,σ]
+    end
+    
+    names = (:μ,:σ)
+    
+    model = DEModel(; 
+        sample_prior, 
+        loglike, 
+        data,
+        names
+    )
+    
+    de = DE(;
+        bounds, 
+        burnin=1000, 
+        Np=6, 
+        n_groups=1, 
+        update_particle! = maximize!,
+        evaluate_fitness! = evaluate_fun!
+    )
+
     n_iter = 10000
-    # run the optimization algorithm
+    # # run the optimization algorithm
     particles = optimize(model, de, MCMCThreads(), n_iter, progress=true);
     # extract the optimal parameters
     parms,LL = get_optimal(de, model, particles)

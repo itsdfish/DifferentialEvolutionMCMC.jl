@@ -126,14 +126,6 @@ function add_sample!(p, i)
     p.samples[i,:] = p.Θ
 end
 
-# function sample_prior(priors)
-#     samples = [rand(p...) for p in priors]
-#     t = findtype(samples)
-#     return sample_prior(samples, t)
-# end
-
-# sample_prior(samples, T) = T[s for s in samples]
-
 function as_union(p) 
     T = find_type(p)
     return Array{T}(p)
@@ -148,7 +140,6 @@ Update particle based on Metropolis-Hastings rule.
 * `proposal`: proposal particle
 * `log_adj`: an adjustment term for snooker update
 """
-
 function Metropolis_Hastings_update!(de, current, proposal, log_adj=0.0)
     accepted = accept(proposal.weight, current.weight, log_adj)
     if accepted

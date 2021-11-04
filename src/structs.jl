@@ -128,7 +128,7 @@ end
 
 function DEModel(
         args...; 
-        prior_loglike=nothing, 
+        prior_loglike = nothing, 
         loglike, 
         names, 
         sample_prior, 
