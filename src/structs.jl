@@ -67,54 +67,92 @@ mutable struct DE{T1,F1,F2,F3,F4} <: AbstractSampler
     sample::F4
 end
 
-function DE(;n_groups=4, priors=nothing, Np=num_parms(priors) * 3, burnin=1000, discard_burnin=true, α=.1, β=.1, ϵ=.001,
-    σ=.05, κ=1.0, θsnooker=0.0, bounds, n_initial=0, generate_proposal=random_gamma, update_particle! = Metropolis_Hastings_update!,
-    evaluate_fitness! = compute_posterior!, sample=sample)
+function DE(;
+        n_groups = 4, 
+        priors = nothing, 
+        Np, 
+        burnin = 1000, 
+        discard_burnin = true, 
+        α = .1,
+        β = .1, 
+        ϵ = .001,
+        σ = .05, 
+        κ = 1.0, 
+        θsnooker = 0.0, 
+        bounds, 
+        n_initial = 0, 
+        generate_proposal = random_gamma, 
+        update_particle! = Metropolis_Hastings_update!,
+        evaluate_fitness! = compute_posterior!, 
+        sample = sample
+    )
+
     if  (n_groups == 1) && (α > 0)
         α = 0.0
         @warn "migration probability α > 0 but n_groups == 1. Changing α = 0.0"
     end
-    return DE(n_groups, Np, burnin, discard_burnin, α, β, ϵ, σ, κ, θsnooker, bounds, n_initial, 1, generate_proposal, 
-        update_particle!, evaluate_fitness!, sample)
+
+    return DE(
+        n_groups, 
+        Np, 
+        burnin, 
+        discard_burnin, 
+        α, 
+        β, 
+        ϵ, 
+        σ, 
+        κ, 
+        θsnooker, 
+        bounds, 
+        n_initial, 
+        1, 
+        generate_proposal, 
+        update_particle!, 
+        evaluate_fitness!, 
+        sample
+    )
 end
 
 """
 A model object containing the log likelihood function and prior distributions
-* `priors`: prior distributions
-* `model`: log likelihood function
+* `prior_loglike`: loglike
+* `loglike`: log likelihood function
 * `names`: parameter names
 """
-struct DEModel{F,L,T} <: AbstractModel where {F <: Function,L,T}
-    priors::L
-    model::F
+struct DEModel{F,L,T,S} <: AbstractModel where {F <: Function,L,T,S}
+    prior_loglike::L
+    loglike::F
+    sample_prior::S
     names::T
 end
 
-function DEModel(args...; priors, model, names=String.(keys(priors)), data, kwargs...)
-    priors′ = values(priors)
-    return DEModel(priors′, x->model(data, args..., x...; kwargs...), names)
- end
-
-"""
-Computes the number of parameters based on scalars or vectors
-"""
-function num_parms(priors)
-    if isnothing(priors)
-        error("Np undefined. Define Np=x in constructor or pass priors for default Np")
-    end
-    n = 0
-    for p in priors
-        n += length(p) == 1 ? 1 : prod(p[2])
-    end
-    return n
+function DEModel(
+        args...; 
+        prior_loglike, 
+        loglike, 
+        names, 
+        sample_prior, 
+        data, 
+        kwargs...
+    )
+    return DEModel(
+        x -> prior_loglike(x...), 
+        x -> loglike(data, args..., x...; kwargs...),
+        sample_prior, 
+        names
+    )
 end
 
 """
-* `θ`: a vector of parameters
-* `samples`: a 2-dimensional array containing all acccepted proposals
-* `accept`: proposal acceptance. 1: accept, 0: reject
-* `weight`: particle weight based on model fit (currently posterior log likelihood)
-* `lp`: a vector of log posterior probabilities associated with each accepted proposal
+    Particle{T}
+
+# Fields 
+
+- `θ`: a vector of parameters
+- `samples`: a 2-dimensional array containing all acccepted proposals
+- `accept`: proposal acceptance. 1: accept, 0: reject
+- `weight`: particle weight based on model fit (currently posterior log likelihood)
+- `lp`: a vector of log posterior probabilities associated with each accepted proposal
 """
 mutable struct Particle{T}
     Θ::Vector{T}
@@ -126,7 +164,11 @@ end
 
 Base.broadcastable(x::Particle) = Ref(x)
 
-function Particle(;Θ=[.0], samples=Array{eltype(Θ),2}(undef, 1, 1),
-    accept=Bool[],weight=0.0)
-    Particle(Θ, samples, accept, weight, Float64[])
+function Particle(;
+        Θ=[.0],
+        samples = Array{eltype(Θ),2}(undef, 1, 1),
+        accept = Bool[], 
+        weight = 0.0
+    )
+    return Particle(Θ, samples, accept, weight, Float64[])
 end

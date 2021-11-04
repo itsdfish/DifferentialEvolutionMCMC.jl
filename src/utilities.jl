@@ -10,7 +10,7 @@ function init_particle!(model, de, p, n_iter)
     N = n_iter + n_initial
     p.samples = typeof(p.samples)(undef, N, length(p.Θ))
     for i in 1:n_initial 
-        p.samples[i,:] = sample_prior(model.priors)
+        p.samples[i,:] = model.sample_prior()
     end
     p.accept = fill(false, N)
     de.evaluate_fitness!(de, model, p)
@@ -18,18 +18,20 @@ function init_particle!(model, de, p, n_iter)
     return nothing
 end
 
-function priorlike(model, p)
-    LL = 0.0
-    for (pr,θ) in zip(model.priors, p.Θ)
-        LL += get_LL(pr[1], θ)
-    end
-    return LL
-end
+# prior_loglike(p) = prior_loglike(p...)
 
-# handles arbitrary distribution types. Not flexible enough otherwise
-get_LL(d::MultivariateDistribution, x::Vector) = logpdf(d, x)
-get_LL(d::UnivariateDistribution, x::Real) = logpdf(d, x)
-get_LL(d, x) = loglikelihood(d, x)
+# function priorlike(model, p)
+#     LL = 0.0
+#     for (pr,θ) in zip(model.priors, p.Θ)
+#         LL += get_LL(pr[1], θ)
+#     end
+#     return LL
+# end
+
+# # handles arbitrary distribution types. Not flexible enough otherwise
+# get_LL(d::MultivariateDistribution, x::Vector) = logpdf(d, x)
+# get_LL(d::UnivariateDistribution, x::Real) = logpdf(d, x)
+# get_LL(d, x) = loglikelihood(d, x)
 
 """
 Metropolis-Hastings proposal selection
@@ -60,7 +62,7 @@ end
 
 function compute_posterior!(de, model, proposal)
     if in_bounds(de, proposal)
-        proposal.weight = priorlike(model, proposal) + model.model(proposal.Θ)
+        proposal.weight = model.prior_loglike(proposal.Θ) + model.loglike(proposal.Θ)
     else
         proposal.weight = -Inf
     end
@@ -69,7 +71,7 @@ end
 
 function evaluate_fun!(de, model, proposal)
     if in_bounds(de, proposal)
-        proposal.weight = model.model(proposal.Θ)
+        proposal.weight = model.loglike(proposal.Θ)
     else
         proposal.weight = de.update_particle! == maximize! ? -Inf : Inf
     end
@@ -124,15 +126,20 @@ function add_sample!(p, i)
     p.samples[i,:] = p.Θ
 end
 
-function sample_prior(priors)
-    samples = [rand(p...) for p in priors]
-    t = findtype(samples)
-    return sample_prior(samples, t)
+# function sample_prior(priors)
+#     samples = [rand(p...) for p in priors]
+#     t = findtype(samples)
+#     return sample_prior(samples, t)
+# end
+
+# sample_prior(samples, T) = T[s for s in samples]
+
+function as_union(p) 
+    T = find_type(p)
+    return Array{T}(p)
 end
 
-sample_prior(samples, T) = T[s for s in samples]
-
-findtype(p) = Union{unique(typeof.(p))...}
+find_type(p) = Union{unique(typeof.(p))...}
 
 """
 Update particle based on Metropolis-Hastings rule.

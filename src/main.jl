@@ -145,7 +145,7 @@ Creates vectors of particles and samples initial parameter values from priors
 * `n_iter`: number of iterations
 """
 function sample_init(model::DEModel, de::DE, n_iter)
-    groups = [[Particle(Θ=sample_prior(model.priors)) for p in 1:de.Np]
+    groups = [[Particle(Θ=model.sample_prior()) for p in 1:de.Np]
         for c in 1:de.n_groups]
     for group in groups
         for p in group
