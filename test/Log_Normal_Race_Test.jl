@@ -11,14 +11,44 @@ function loglike(data, μ, σ, ϕ)
     return sum(logpdf.(dist, data))
 end
 
+function prior_loglike(μ, σ, ϕ)
+    LL = 0.0
+    LL += logpdf(Normal(0, 3), 4), μ)
+    LL += logpdf(truncated(Cauchy(0, 1), 0.0, Inf), σ)
+    LL += logpdf(Uniform(0., min_rt), ϕ)
+end
+
+function sample_loglike()
+    LL = 0.0
+    μ = rand(Normal(0, 3), 4)
+    σ = logpdf(truncated(Cauchy(0, 1), 0.0, Inf))
+    ϕ = logpdf(Uniform(0, min_rt))
+    return as_union([μ,σ,ϕ])
+end
+
 min_rt = minimum(x -> x[2], data)
-priors = (μ = (Normal(0, 3), 4),σ = (truncated(Cauchy(0, 1), 0.0, Inf),),
-    ϕ = (Uniform(0., min_rt),))
 bounds = ((-Inf,0.),(1e-10,Inf),(0.,min_rt))
-model = DEModel(;priors, model=loglike, data)
-de = DE(;priors, bounds, burnin=2000)
+# model = DEModel(;priors, model=loglike, data)
+# de = DE(;priors, bounds, burnin=2000)
+# n_iter = 4000
+# chains = sample(model, de, n_iter)
+
+names = (:μ,:σ,:ϕ)
+
+model = DEModel(; 
+    sample_prior, 
+    prior_loglike, 
+    loglike, 
+    data,
+    names
+)
+
+
+de = DE(;bounds, burnin=2000, Np=24)
 n_iter = 4000
-chains = sample(model, de, n_iter)
+chains = sample(model, de, MCMCThreads(), n_iter, progress=true)
+
+
 μ_de = describe(chains)[1][:,:mean]
 σ_de = describe(chains)[1][:,:std]
 rhat = describe(chains)[1][:,:rhat]

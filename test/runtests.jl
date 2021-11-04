@@ -11,9 +11,10 @@ using SafeTestsets
     N = 10
     k = rand(Binomial(N, .5))
     data = (N = N,k = k)
-    priors = (
-        θ = (Beta(1, 1),),
-    )
+    
+    prior_loglike(θ) = logpdf(beta(1, 1), θ)
+
+    sample_prior() = rand(beta(1, 1))
 
     bounds = ((0,1),)
 
@@ -21,9 +22,18 @@ using SafeTestsets
         return logpdf(Binomial(data.N, θ), data.k)
     end
 
-    model = DEModel(;priors, model=loglike, data)
+    names = (:θ,)
 
-    de = DE(;priors, bounds, burnin=1500)
+    model = DEModel(; 
+        sample_prior, 
+        prior_loglike, 
+        loglike, 
+        data,
+        names
+    )
+
+    de = DE(;bounds, burnin=1500, Np=3)
+
     n_iter = 3000
     chains = sample(model, de, n_iter)
     μθ = describe(chains)[1][:,:mean][1]
@@ -42,9 +52,10 @@ end
     N = 10
     k = rand(Binomial(N, .5))
     data = (N = N,k = k)
-    priors = (
-        θ = (Beta(1, 1),),
-    )
+
+    prior_loglike(θ) = logpdf(beta(1, 1), θ)
+
+    sample_prior() = rand(beta(1, 1))
 
     bounds = ((0,1),)
 
@@ -52,12 +63,19 @@ end
         return logpdf(Binomial(data.N, θ), data.k)
     end
 
-    model = DEModel(;priors, model=loglike, data)
-    
-    burnin = 1500
-    n_iter = 3000
+    names = (:θ,)
 
-    de = DE(;priors, bounds, burnin, discard_burnin=false)
+    model = DEModel(; 
+        sample_prior, 
+        prior_loglike, 
+        loglike, 
+        data,
+        names
+    )
+
+    de = DE(;bounds, burnin=1500, Np=3)
+
+    n_iter = 3000
     chains = sample(model, de, n_iter)
     @test length(chains) == n_iter
 

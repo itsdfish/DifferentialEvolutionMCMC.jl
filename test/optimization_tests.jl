@@ -4,9 +4,9 @@
 
     Random.seed!(514)
 
-    priors = (
-        x = (Uniform(-5, 5), 2),
-    )
+    function sample_prior()
+       return rand(Uniform(-5, 5), 2)
+    end
 
     bounds = ((-5.0,5.0),)
 
@@ -20,12 +20,23 @@
         return y 
     end
 
-    model = DEModel(; priors, model=rastrigin, data=nothing)
+    model = DEModel(; 
+        sample_prior, 
+        loglike = rastrigin, 
+        data = nothing,
+        names
+    )
 
-    de = DE(bounds=bounds, Np=6, n_groups=1, update_particle! = minimize!,
-        evaluate_fitness! = evaluate_fun!)
-    n_iter = 10000
-    particles = optimize(model, de, MCMCThreads(), n_iter, progress=true);
+    de = DE(;
+        bounds,
+        Np = 6, 
+        n_groups = 1, 
+        update_particle! = minimize!,
+        evaluate_fitness! = evaluate_fun!
+    )
+
+    n_iter = 10_000
+    particles = optimize(model, de, n_iter, progress=true);
     results = get_optimal(de, model, particles)
     @test results[2] ≈ 0.0 atol = 1e-8
 end

@@ -1,23 +1,45 @@
 using DifferentialEvolutionMCMC, Test, Random, Turing, Parameters, Distributions
 import DifferentialEvolutionMCMC: select_groups, select_particles, shift_particles!, sample_init
 Random.seed!(973536)
-priors = (
-    μ = (Normal(0, 10),),
-    σ = (truncated(Cauchy(0, 1), 0.0, Inf),)
-)
 
 bounds = ((-Inf,Inf),(0.0,Inf))
 
 data = rand(Normal(0.0, 1.0), 100)
 
+function prior_loglike(μ, σ)
+    LL = 0.0
+    LL += logpdf(Normal(0, 10), μ)
+    LL += logpdf(truncated(Cauchy(0, 1), 0, Inf), σ)
+    return LL
+end
+
+function sample_prior()
+    μ = rand(Normal(0, 10))
+    σ = rand(truncated(Cauchy(0, 1), 0, Inf))
+    return [μ,σ]
+end
+
+bounds = ((-Inf,Inf),(0.0,Inf))
+
+data = rand(Normal(0.0, 1.0), 50)
+
 function loglike(data, μ, σ)
     return sum(logpdf.(Normal(μ, σ), data))
 end
 
-model = DEModel(priors=priors, model=loglike, data=data)
-de = DE(;priors=priors, bounds=bounds, burnin=1500)
+names = (:μ,:σ)
+
+model = DEModel(; 
+    sample_prior, 
+    prior_loglike, 
+    loglike, 
+    data,
+    names
+)
+
+de = DE(;bounds, burnin=1500, Np=6)
 n_iter = 3000
-chains = sample(model, de, n_iter)
+chains = sample(model, de, n_iter, progress=true)
 μ_de = describe(chains)[1][:,:mean]
 σ_de = describe(chains)[1][:,:std]
 rhat = describe(chains)[1][:,:rhat]
