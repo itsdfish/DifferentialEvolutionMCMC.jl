@@ -1,8 +1,13 @@
 using SafeTestsets
 
+@safetestset "LNR" begin
+    include("Log_Normal_Race_Test.jl")
+end
+
+ 
 @safetestset "Optimization" begin
     include("optimization_tests.jl")
- end
+end
 
 @safetestset "Binomial Model" begin
     using DifferentialEvolutionMCMC, Test, Random, Turing, Parameters, Distributions
@@ -88,11 +93,6 @@ end
 @safetestset "Gaussian" begin
     include("Guassian_Test.jl")
 end
-
-@safetestset "LNR" begin
-   include("Log_Normal_Race_Test.jl")
-end
-
 
 @safetestset "Migration" begin
     using DifferentialEvolutionMCMC, Test, Random, Turing, Parameters, Distributions

@@ -27,12 +27,8 @@ function sample_prior()
 end
 
 min_rt = minimum(x -> x[2], data)
-bounds = ((-Inf,0.),(1e-10,Inf),(0.,min_rt))
-# model = DEModel(;priors, model=loglike, data)
-# de = DE(;priors, bounds, burnin=2000)
-# n_iter = 4000
-# chains = sample(model, de, n_iter)
 
+bounds = ((-Inf,0.),(1e-10,Inf),(0.,min_rt))
 names = (:μ,:σ,:ϕ)
 
 model = DEModel(; 
@@ -43,8 +39,7 @@ model = DEModel(;
     names
 )
 
-
-de = DE(;bounds, burnin=2000, Np=24)
+de = DE(;bounds, burnin=2000, Np=24, n_groups=3)
 n_iter = 4000
 chains = sample(model, de, MCMCThreads(), n_iter, progress=true)
 
