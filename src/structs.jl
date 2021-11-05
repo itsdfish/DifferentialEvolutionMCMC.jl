@@ -17,6 +17,7 @@
         update_particle! = mh_update!,
         evaluate_fitness! = compute_posterior!, 
         sample = sample
+        blocking_on
     )
 
 Differential Evolution MCMC object.
@@ -59,7 +60,7 @@ Constructor signature:
 
 * Turner, B. M., & Sederberg, P. B. (2012). Approximate Bayesian computation with differential evolution. Journal of Mathematical Psychology, 56(5), 375-385.
 """
-mutable struct DE{T1,F1,F2,F3,F4} <: AbstractSampler
+@concrete mutable struct DE <: AbstractSampler
     n_groups::Int64
     Np::Int64
     burnin::Int64
@@ -70,13 +71,15 @@ mutable struct DE{T1,F1,F2,F3,F4} <: AbstractSampler
     σ::Float64
     κ::Float64
     θsnooker::Float64
-    bounds::T1
+    bounds
     n_initial::Int64
     iter::Int64
-    generate_proposal::F1
-    update_particle!::F2
-    evaluate_fitness!::F3
-    sample::F4
+    generate_proposal
+    update_particle!
+    evaluate_fitness!
+    sample
+    blocking_on
+    blocks
 end
 
 function DE(;
@@ -96,7 +99,9 @@ function DE(;
         generate_proposal = random_gamma, 
         update_particle! = mh_update!,
         evaluate_fitness! = compute_posterior!, 
-        sample = sample
+        sample = sample,
+        blocking_on = x -> false,
+        blocks = [1,2]
     )
 
     if  (n_groups == 1) && (α > 0)
@@ -121,7 +126,9 @@ function DE(;
         generate_proposal, 
         update_particle!, 
         evaluate_fitness!, 
-        sample
+        sample,
+        blocking_on,
+        blocks
     )
 end
 

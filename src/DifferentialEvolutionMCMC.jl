@@ -1,6 +1,6 @@
 module DifferentialEvolutionMCMC
     using Random, StatsBase, ProgressMeter, Parameters, Distributions
-    using LinearAlgebra
+    using LinearAlgebra, ConcreteStructs
     import AbstractMCMC: AbstractSampler, AbstractModel
     import AbstractMCMC: bundle_samples, sample, MCMCThreads
     import MCMCChains: Chains

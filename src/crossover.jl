@@ -11,23 +11,63 @@ Performs crossover step for each particle pt in the chain
 """
 function crossover!(model, de, group)
     for pt in group
-        if rand() ≤ de.θsnooker
-            # generate the proposal
-            proposal,log_adj = snooker_update!(de, pt, group)
-            # compute the weight of the proposal: prior loglikelihood + data loglikelihood
-            de.evaluate_fitness!(de, model, proposal)
-            # accept proposal according to Metropolis-Hastings rule
-            de.update_particle!(de, pt, proposal, log_adj)
-        else
-            # generate the proposal
-            proposal = de.generate_proposal(de, pt, group)
-            # compute the weight of the proposal: prior loglikelihood + data loglikelihood
-            de.evaluate_fitness!(de, model, proposal)
-            # accept proposal according to Metropolis-Hastings rule
-            de.update_particle!(de, pt, proposal)
-        end
+        crossover!(model, de, group, pt)
     end
     return nothing
+end
+
+function adjust_loglike(Pt, proposal, Pz)
+    Np = length(Pt.Θ)
+    adj1 = norm(proposal - Pz)^(Np - 1)
+    adj2 = norm(Pt - Pz)^(Np - 1)
+    return log(adj1 / adj2)
+end
+
+function crossover!(model, de, group, pt::Particle)
+    if rand() ≤ de.θsnooker
+        # generate the proposal
+        proposal,pz = snooker_update!(de, pt, group)
+        log_adj = adjust_loglike(pt, proposal, pz)
+        # compute the weight of the proposal: prior loglikelihood + data loglikelihood
+        de.evaluate_fitness!(de, model, proposal)
+        # accept proposal according to Metropolis-Hastings rule
+        de.update_particle!(de, pt, proposal, log_adj)
+    else
+        # generate the proposal
+        proposal = de.generate_proposal(de, pt, group)
+        # compute the weight of the proposal: prior loglikelihood + data loglikelihood
+        de.evaluate_fitness!(de, model, proposal)
+        # accept proposal according to Metropolis-Hastings rule
+        de.update_particle!(de, pt, proposal)
+    end
+end
+
+function crossover!(model, de, group, block)
+    for pt in group
+        crossover!(model, de, group, pt, block)
+    end
+    return nothing
+end
+
+function crossover!(model, de, group, pt::Particle, block)
+    if rand() ≤ de.θsnooker
+        # generate the proposal
+        proposal,pz = snooker_update!(de, pt, group)
+        reset!(proposal, pt, block)
+        log_adj = adjust_loglike(pt, proposal, pz)
+        # compute the weight of the proposal: prior loglikelihood + data loglikelihood
+        de.evaluate_fitness!(de, model, proposal)
+        # accept proposal according to Metropolis-Hastings rule
+        de.update_particle!(de, pt, proposal, log_adj)
+    else
+        # generate the proposal
+        proposal = de.generate_proposal(de, pt, group)
+        reset!(proposal, pt, block)
+        # compute the weight of the proposal: prior loglikelihood + data loglikelihood
+        de.evaluate_fitness!(de, model, proposal)
+        # accept proposal according to Metropolis-Hastings rule
+        de.update_particle!(de, pt, proposal)
+    end
 end
 
 """
@@ -169,7 +209,6 @@ Performs snooker update during crossover
 - `group`: a group of particles
 """
 function snooker_update!(de, Pt, group)
-    Np = length(Pt.Θ)
     Pz,Pm,Pn = de.sample(de, group, 3, false) 
     Pd = Pt - Pz
     Pr1 = project(Pm, Pd)
@@ -181,9 +220,7 @@ function snooker_update!(de, Pt, group)
     Θp = Pt + γ * (Pr1 - Pr2) + b
     # reset each parameter to previous value with probability (1-κ)
     recombination!(de, Pt, Θp)
-    adj1 = norm(Θp - Pz)^(Np - 1)
-    adj2 = norm(Pt - Pz)^(Np - 1)
-    return Θp,log(adj1 / adj2)
+    return Θp,Pz
 end
 
 """
@@ -229,4 +266,35 @@ function recombination!(de, Θt, Θp)
         Θp[i] = rand() <= (1 - de.κ) ? Θt[i] : Θp[i]
     end
     return nothing
+end
+
+"""
+    reset!(p1::Particle, p2::Particle, idx)
+
+During block updates, all parameters are updated. This function resets 
+parameters in the proposal `p1` with values from the previous particle. 
+
+# Arguments
+
+`p1`: proposal particle which will have values reset 
+`p2`: previous particle
+`idx`: boolean vector indicating which values are updated in block. False 
+values are reset. 
+"""
+reset!(p1::Particle, p2::Particle, idx) = reset!(p1.Θ, p2.Θ, idx)
+
+function reset!(Θ1, Θ2, idx)
+    for i in 1:length(Θ1)
+        reset!(Θ1, Θ2, idx[i], i)
+    end
+    return nothing
+end
+
+function reset!(Θ1, Θ2, idx::Bool, i)
+    !idx ? Θ1[i] = Θ2[i] : nothing 
+    return nothing
+end
+
+function reset!(Θ1, Θ2, idx::Array{Bool,N}, i) where {N}
+    return reset!(Θ1[i], Θ2[i], idx)
 end

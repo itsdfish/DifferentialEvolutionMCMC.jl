@@ -68,7 +68,8 @@ Perform a single step for DE-MCMC.
 """
 function step!(model::DEModel, de::DE, groups)
     rand() <= de.α ? migration!(de, groups) : nothing
-    groups = mutate_crossover!(model, de, groups)
+    groups = update!(model, de, groups)
+    #groups = mutate_crossover!(model, de, groups)
     store_samples!(de, groups)
     return groups
 end
@@ -86,7 +87,8 @@ Perform a single step for DE-MCMC with each particle group on a separate thread.
 """
 function pstep!(model::DEModel, de::DE, groups)
     rand() <= de.α ? migration!(de, groups) : nothing
-    groups = pmutate_crossover!(model, de, groups)
+    groups = p_update!(model, de, groups)
+    #groups = pmutate_crossover!(model, de, groups)
     store_samples!(de, groups)
     return groups
 end
@@ -102,10 +104,44 @@ On a single core, selects between mutation and crossover step with probability �
 - `de`: differential evolution object
 - `group`: a vector of interacting particles (e.g. chains)
 """
-function mutate_crossover!(model, de, groups)
+# function mutate_crossover!(model, de, groups)
+#     seeds = rand(UInt, length(groups))
+#     # block update recieves rng seed, and iterates through blocks
+#     # groups = map((group,s) -> block_update!(model, de, group, s), groups, seeds)
+#     groups = map((group,s) -> mutate_or_crossover!(model, de, group, s), groups, seeds)
+#     return groups
+# end
+
+function p_update!(model, de, groups)
     seeds = rand(UInt, length(groups))
-    groups = map((group,s) -> mutate_or_crossover!(model, de, group, s), groups, seeds)
-    return groups
+    if de.blocking_on(de)
+        return map((g,s) -> block_update!(model, de, g, s), groups, seeds)
+    else
+        Threads.@threads for g in 1:de.n_groups
+            group = mutate_or_crossover!(model, de, groups[g], seeds[g])
+        end
+        return map((g,s) -> mutate_or_crossover!(model, de, g, s), groups, seeds)
+    end
+end
+
+function update!(model, de, groups)
+    if de.blocking_on(de)
+        return map(g -> block_update!(model, de, g), groups)
+    else
+        return map(g -> mutate_or_crossover!(model, de, g), groups)
+    end
+end
+
+function block_update!(model, de, group, seed)
+    Random.seed!(seed)
+    return block_update!(model, de, group)
+end
+
+function block_update!(model, de, group)
+    for block_idx in de.blocks
+        mutate_or_crossover!(model, de, group, block_idx)
+    end
+    return group
 end
 
 """
@@ -139,9 +175,19 @@ Selects between mutation and crossover step with probability β.
 - `group`: a vector of interacting particles (e.g. chains)
 - `seed`: RNG seed
 """
-function mutate_or_crossover!(model, de, group, seed)
+function mutate_or_crossover!(model, de, group, seed, block_idx)
     Random.seed!(seed)
+    mutate_or_crossover!(model, de, group, block_idx)
+    return group
+end
+
+function mutate_or_crossover!(model, de, group)
     rand() <= de.β ? mutation!(model, de, group) : crossover!(model, de, group)
+    return group
+end
+
+function mutate_or_crossover!(model, de, group, block_idx)
+    rand() <= de.β ? mutation!(model, de, group) : crossover!(model, de, group, block_idx)
     return group
 end
 
