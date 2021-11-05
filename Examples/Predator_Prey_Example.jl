@@ -22,13 +22,24 @@ sol1 = solve(problem, Tsit5(),saveat=0.1)
 data = Array(sol1) + 0.5 * randn(size(Array(sol1)))
 plot(sol1, alpha = 0.3, legend = false); scatter!(sol1.t, data')
 
-priors = (
-    α = (truncated(Normal(1.5, 0.5), 0.5 ,2.5),),
-    β = (truncated(Normal(1.2, 0.5), 0, 2),),
-    γ = (truncated(Normal(3.0, 0.5), 1, 4),),
-    δ = (truncated(Normal(1.0, 0.5), 0, 2),),
-    σ = (InverseGamma(2, 3),)
-)
+function prior_loglike(α, β, γ, δ, σ)
+    LL = 0.0
+    LL += logpdf(truncated(Normal(1.5, 0.5), 0.5 ,2.5), α)
+    LL += logpdf(truncated(Normal(1.2, 0.5), 0, 2), β)
+    LL += logpdf(truncated(Normal(3.0, 0.5), 1, 4), γ)
+    LL += logpdf(truncated(Normal(1.0, 0.5), 0, 2), δ)
+    LL += logpdf(InverseGamma(2, 3), σ)
+    return LL
+end
+
+function sample_prior()
+    α = rand(truncated(Normal(1.5, 0.5), 0.5 ,2.5))
+    β = rand(truncated(Normal(1.2, 0.5), 0, 2))
+    γ = rand(truncated(Normal(3.0, 0.5), 1, 4))
+    δ = rand(truncated(Normal(1.0, 0.5), 0, 2))
+    σ = rand(InverseGamma(2, 3))
+    return [α, β, γ, δ, σ]
+end
 
 bounds = (
     (.5,2.5),
@@ -38,8 +49,11 @@ bounds = (
     (0,Inf)
 )
 
+names = (:α,:β,:γ,:δ,:σ)
+
+
 # Log Likelihood function
-function loglik(data, problem, θ...)
+function loglike(data, problem, θ...)
     prob = remake(problem, p=θ)
     σ = θ[end]
     predicted = solve(prob, Tsit5(), saveat=0.1)
@@ -50,10 +64,18 @@ function loglik(data, problem, θ...)
     return LL
 end
 
-model = DEModel(problem; priors, model=loglik, data)
-de = DE(;bounds, burnin=1000, priors)
+model = DEModel(
+    problem; 
+    loglike,
+    prior_loglike,
+    sample_prior,
+    data,
+    names
+)
+
+de = DE(;bounds, burnin=1000, Np=12, n_groups=3)
 n_iter = 3000
-chains = sample(model, de, n_iter, progress=true)
+chains = sample(model, de, MCMCThreads(), n_iter, progress=true)
 
 chain_array = Array(chains)
 pl = plot(grid=false)

@@ -7,22 +7,43 @@ dist = LBA(ν=[3.0,2.0], A = .8, k = .2, τ = .3)
 choice,rt = rand(dist, 100)
 min_rt = minimum(rt)
 
-priors = (
-    ν = (Normal(1, 5), 2),
-    A = (Normal(.8, .2),),
-    k = (Normal(.2, .1),),
-    τ = (Uniform(0, min_rt),)
-)
+function _prior_loglike(ν, A, k, τ, min_rt)
+    LL = 0.0
+    LL += sum(logpdf(Normal(1, 5), ν))
+    LL += logpdf(Normal(.8, .2), A)
+    LL += logpdf(Normal(.2, .1), k)
+    LL += logpdf(Uniform(0, min_rt), τ)
+    return LL
+end
+
+function sample_prior()
+    ν = rand(Normal(1, 5), 2)
+    A = rand(Normal(.8, .2))
+    k = rand(Normal(.2, .1))
+    τ = rand(Uniform(0, min_rt))
+    return as_union([ν,A,k,τ])
+end
+
+wrapper(min_rt) = (ν, A, k, τ) -> _prior_loglike(ν, A, k, τ, min_rt)
+
+prior_loglike = wrapper(min_rt)
 
 bounds = ((0.0,Inf), (0.0,Inf), (0.0,Inf), (0.0,min_rt))
+names = (:ν, :A, :k, :τ)
 
 function loglike(data, ν, A, k, τ)
     dist = LBA(;ν, A, k, τ) 
     return logpdf.(dist, data...) |> sum
 end
 
-model = DEModel(;priors, model=loglike, data=(choice,rt))
+model = DEModel(; 
+    sample_prior, 
+    prior_loglike, 
+    loglike, 
+    data = (choice,rt),
+    names
+)
 
-de = DE(;bounds, burnin=1500, priors)
+de = DE(;bounds, burnin=1500, n_groups=3, Np=15)
 n_iter = 3000
-@elapsed chain = sample(model, de, MCMCThreads(), n_iter, progress=true)
+chain = sample(model, de, MCMCThreads(), n_iter, progress=true)

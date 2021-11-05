@@ -17,12 +17,11 @@ using SafeTestsets
     sample_prior() = rand(Beta(1, 1))
 
     bounds = ((0,1),)
+    names = (:θ,)
 
     function loglike(data, θ)
         return logpdf(Binomial(data.N, θ), data.k)
     end
-
-    names = (:θ,)
 
     model = DEModel(; 
         sample_prior, 

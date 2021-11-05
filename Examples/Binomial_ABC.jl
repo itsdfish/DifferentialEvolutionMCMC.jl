@@ -2,11 +2,12 @@ cd(@__DIR__)
 using DifferentialEvolutionMCMC, Random, Parameters, Distributions
 Random.seed!(88484)
 
-priors = (
-    θ = (Beta(1, 1),),
-)
+prior_loglike(θ) = logpdf(Beta(1, 1), θ)
+
+sample_prior() = rand(Beta(1, 1))
 
 bounds = ((0,1),)
+names = (:θ,)
 
 N = 10
 k = rand(Binomial(N, .5))
@@ -22,8 +23,14 @@ end
 
 # loglike(θ, data) = logpdf(Binomial(data.N, θ), data.k)
 
-model = DEModel(;priors, model=loglike, data)
+model = DEModel(; 
+    sample_prior, 
+    prior_loglike, 
+    loglike, 
+    data,
+    names
+)
 
-de = DE(;bounds, burnin=1000, priors, σ=.01)
+de = DE(;bounds, burnin=1000, Np=3, σ=.01)
 n_iter = 2000
-@elapsed chains = sample(model, de, MCMCThreads(), n_iter, progress=true)
+chains = sample(model, de, MCMCThreads(), n_iter, progress=true)

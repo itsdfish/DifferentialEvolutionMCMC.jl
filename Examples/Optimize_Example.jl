@@ -4,21 +4,41 @@ import DifferentialEvolutionMCMC: minimize!
 
 Random.seed!(50514)
 
-priors = (
-    x = (Uniform(-5, 5), 2),
-)
+function sample_prior()
+    return [rand(Uniform(-5, 5), 2)]
+ end
+
+ function rastrigin(data, x)
+     A = 10.0
+     n = length(x)
+     y = A * n
+     for  i in 1:n
+         y +=  + x[i]^2 - A * cos(2 * π * x[i])
+     end
+     return y 
+ end
 
 bounds = ((-5.0,5.0),)
+names = (:x,)
 
-function rosenbrock2d(data, x)
-    return (1.0 - x[1])^2 + 100.0 * (x[2] - x[1]^2)^2
-end
+model = DEModel(; 
+    sample_prior, 
+    loglike = rastrigin, 
+    data = nothing,
+    names
+)
 
-model = DEModel(; priors, model=rosenbrock2d, data=nothing)
+de = DE(;
+    bounds,
+    Np = 6, 
+    n_groups = 1, 
+    update_particle! = minimize!,
+    evaluate_fitness! = evaluate_fun!
+)
 
-de = DE(bounds=bounds, Np=6, n_groups=1, update_particle! = minimize!,
-    evaluate_fitness! = evaluate_fun!)
-n_iter = 10000
-particles = optimize(model, de, MCMCThreads(), n_iter, progress=true);
+
+
+n_iter = 10_000
+particles = optimize(model, de, n_iter, progress=true);
 results = get_optimal(de, model, particles)
 println(results)
