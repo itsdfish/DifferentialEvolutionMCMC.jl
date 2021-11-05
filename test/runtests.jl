@@ -4,7 +4,6 @@ using SafeTestsets
     include("Log_Normal_Race_Test.jl")
 end
 
- 
 @safetestset "Optimization" begin
     include("optimization_tests.jl")
 end

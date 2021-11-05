@@ -55,6 +55,6 @@ n_iter = 2000
 ###################################################################################
 #                             estimate parameters
 ###################################################################################
-chains = sample(model, de, MCMCThreads(), n_iter, progress=true)
 Random.seed!(1)
+@time chains = sample(model, de, MCMCThreads(), n_iter, progress=true)
 chains = sample(model, de, n_iter, progress=true)

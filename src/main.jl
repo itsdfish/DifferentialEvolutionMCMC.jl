@@ -69,7 +69,6 @@ Perform a single step for DE-MCMC.
 function step!(model::DEModel, de::DE, groups)
     rand() <= de.α ? migration!(de, groups) : nothing
     groups = update!(model, de, groups)
-    #groups = mutate_crossover!(model, de, groups)
     store_samples!(de, groups)
     return groups
 end
@@ -88,13 +87,12 @@ Perform a single step for DE-MCMC with each particle group on a separate thread.
 function pstep!(model::DEModel, de::DE, groups)
     rand() <= de.α ? migration!(de, groups) : nothing
     groups = p_update!(model, de, groups)
-    #groups = pmutate_crossover!(model, de, groups)
     store_samples!(de, groups)
     return groups
 end
 
 """
-    mutate_crossover!(model, de, groups)
+    p_update!(model, de, groups)(model, de, groups)
 
 On a single core, selects between mutation and crossover step with probability β.
 
@@ -104,23 +102,18 @@ On a single core, selects between mutation and crossover step with probability �
 - `de`: differential evolution object
 - `group`: a vector of interacting particles (e.g. chains)
 """
-# function mutate_crossover!(model, de, groups)
-#     seeds = rand(UInt, length(groups))
-#     # block update recieves rng seed, and iterates through blocks
-#     # groups = map((group,s) -> block_update!(model, de, group, s), groups, seeds)
-#     groups = map((group,s) -> mutate_or_crossover!(model, de, group, s), groups, seeds)
-#     return groups
-# end
-
 function p_update!(model, de, groups)
     seeds = rand(UInt, length(groups))
     if de.blocking_on(de)
-        return map((g,s) -> block_update!(model, de, g, s), groups, seeds)
+        Threads.@threads for g in 1:de.n_groups
+            group = block_update!(model, de, groups[g], seeds[g])
+        end
+        return groups
     else
         Threads.@threads for g in 1:de.n_groups
             group = mutate_or_crossover!(model, de, groups[g], seeds[g])
         end
-        return map((g,s) -> mutate_or_crossover!(model, de, g, s), groups, seeds)
+        return groups
     end
 end
 
@@ -145,25 +138,6 @@ function block_update!(model, de, group)
 end
 
 """
-    pmutate_crossover!(model, de, groups)
-
-On multiple threads, selects between mutation and crossover step with probability β.
-
-# Arguments
-
-- `model`: model containing a likelihood function with data and priors
-- `de`: differential evolution object
-- `groups`: a vector of interacting particles (e.g. chains)
-"""
-function pmutate_crossover!(model, de, groups)
-    seeds = rand(UInt, de.n_groups)
-    Threads.@threads for g in 1:de.n_groups
-        group = mutate_or_crossover!(model, de, groups[g], seeds[g])
-    end
-    return groups
-end
-
-"""
     mutate_or_crossover!(model, de, group, seed)
 
 Selects between mutation and crossover step with probability β.
@@ -175,9 +149,15 @@ Selects between mutation and crossover step with probability β.
 - `group`: a vector of interacting particles (e.g. chains)
 - `seed`: RNG seed
 """
-function mutate_or_crossover!(model, de, group, seed, block_idx)
+function mutate_or_crossover!(model, de, group, seed::Number, block_idx)
     Random.seed!(seed)
     mutate_or_crossover!(model, de, group, block_idx)
+    return group
+end
+
+function mutate_or_crossover!(model, de, group, seed::Number)
+    Random.seed!(seed)
+    mutate_or_crossover!(model, de, group)
     return group
 end
 

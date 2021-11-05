@@ -2,7 +2,7 @@
     using Test, DifferentialEvolutionMCMC, Random, Distributions
     import DifferentialEvolutionMCMC: minimize!
 
-    Random.seed!(514)
+    Random.seed!(515)
 
     function sample_prior()
        return [rand(Uniform(-5, 5), 2)]
