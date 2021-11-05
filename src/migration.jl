@@ -1,7 +1,12 @@
 """
-select a subset of groups and swap one poorly particle from each selected groups
-* `de`: differential evolution object
-* `groups`: groups of particles
+    migration!(de, groups)
+
+Select a subset of groups and swap one poorly particle from each selected groups.
+
+# Arguments
+
+- `de`: differential evolution object
+- `groups`: groups of particles
 """
 function migration!(de, groups)
     # select groups for migration
@@ -14,9 +19,14 @@ function migration!(de, groups)
 end
 
 """
-select a subset of groups for migration and return their indices
-* `de`: differential evolution object
-* `groups`: groups of particles
+    select_groups(de, groups)
+
+Select a subset of groups for migration and return their indices.
+
+# Arguments
+
+- `de`: differential evolution object
+- `groups`: groups of particles
 """
 function select_groups(de, groups)
     N = rand(2:de.n_groups)
@@ -25,8 +35,13 @@ function select_groups(de, groups)
 end
 
 """
+    select_particles(sub_group)
+
 Select particles from groups for migration. Returns particle index and particles.
-* `sub_group`: vector of particles
+
+# Arguments
+
+- `sub_group`: vector of particles
 """
 function select_particles(sub_group)
     Ng = length(sub_group)
@@ -39,8 +54,12 @@ function select_particles(sub_group)
 end
 
 """
-Select particle from a single chain inversely proportional to its weight
-* `group`: a group of particles
+    select_particle(group)
+Select particle from a single chain inversely proportional to its weight.
+
+# Arguments
+
+- `group`: a group of particles
 """
 function select_particle(group)
     w = map(x -> x.weight, group)
@@ -52,11 +71,16 @@ function select_particle(group)
 end
 
 """
+    shift_particles!(sub_group, p_idx, particles)
+
 Swap the particles so that p1->pn, p2 -> p1,..., pn -> pn-1 where
-pi is the particle belonging to the ith group
-* `sub_group`: group of particles
-* `p_idx`: particle index
-* `particles`: particle objects representing position in parameter space
+pi is the particle belonging to the ith group.
+
+# Arguments
+
+- `sub_group`: group of particles
+- `p_idx`: particle index
+- `particles`: particle objects representing position in parameter space
 """
 function shift_particles!(sub_group, p_idx, particles)
     # perform a circular shift

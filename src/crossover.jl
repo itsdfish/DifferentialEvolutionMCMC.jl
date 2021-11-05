@@ -1,8 +1,13 @@
 """
+    crossover!(model, de, group)
+
 Performs crossover step for each particle pt in the chain
-* `model`: model containing a likelihood function with data and priors
-* `de`: differential evolution object
-* `group`: a group of particles
+
+# Arguments
+
+- `model`: model containing a likelihood function with data and priors
+- `de`: differential evolution object
+- `group`: a group of particles
 """
 function crossover!(model, de, group)
     for pt in group
@@ -25,7 +30,19 @@ function crossover!(model, de, group)
     return nothing
 end
 
-function resample(de, group, n, replace)
+"""
+    resample(de, group, n, replace)
+
+Sample a random particle from previously accepted values for snooker update.
+
+# Arguments
+
+- `de`: differential evolution object
+- `group`: a group of particles
+- `n`: number of particles to sample
+- `_`: sample with replacement if true (not used)
+"""
+function resample(de, group, n, _)
     P′ = Vector{eltype(group)}(undef,n)
     mx_idx = de.iter - 1
     for i in 1:n 
@@ -36,16 +53,33 @@ function resample(de, group, n, replace)
     return P′
 end
 
+"""
+    sample(de::DE, group_diff, n, replace) 
+
+Sample a random particle.
+
+# Arguments
+
+- `de`: differential evolution object
+- `group`: a group of particles
+- `n`: number of particles to sample
+- `replace`: sample with replacement if true
+"""
 function sample(de::DE, group_diff, n, replace) 
     return sample(group_diff, n; replace)
 end
 
 """
-Generate proposal according to θ' = θt + γ1(θm − θn) + γ2(θb − θt) + b
+    random_gamma(de, Pt, group)
+
+Generate proposal according to θ' = θt + γ1(θm − θn) + γ2(θb − θt) + b.
 γ2=0 after burnin
-* `de`: differential evolution object
-* `Pt`: current particle
-* `group`: a group of particles
+
+# Arguments
+
+- `de`: differential evolution object
+- `Pt`: current particle
+- `group`: a group of particles
 """
 function random_gamma(de, Pt, group)
     Np = length(Pt.Θ)
@@ -69,11 +103,16 @@ function random_gamma(de, Pt, group)
 end
 
 """
+    fixed_gamma(de, Pt, group)
+
 Generate proposal according to θ' = θt + γ(θm − θn) + b
-where γ = 2.38
-* `de`: differential evolution object
-* `Pt`: current particle
-* `group`: a group of particles
+where γ = 2.38.
+
+# Arguments
+
+- `de`: differential evolution object
+- `Pt`: current particle
+- `group`: a group of particles
 """
 function fixed_gamma(de, Pt, group)
     Np = length(Pt.Θ)
@@ -92,11 +131,16 @@ function fixed_gamma(de, Pt, group)
 end
 
 """
+    variable_gamma(de, Pt, group)
+
 Generate proposal according to θ' = θt + γ(θm − θn) + b
 where γ = 2.38/√(2d) where d is the number of parameters
-* `de`: differential evolution object
-* `Pt`: current particle
-* `group`: a group of particles
+
+# Arguments 
+
+- `de`: differential evolution object
+- `Pt`: current particle
+- `group`: a group of particles
 """
 function variable_gamma(de, Pt, group)
     Np = length(Pt.Θ)
@@ -113,6 +157,17 @@ function variable_gamma(de, Pt, group)
     return Θp
 end
 
+"""
+    snooker_update!(de, Pt, group)
+
+Performs snooker update during crossover
+
+# Arguments 
+
+- `de`: differential evolution object
+- `Pt`: current particle
+- `group`: a group of particles
+"""
 function snooker_update!(de, Pt, group)
     Np = length(Pt.Θ)
     Pz,Pm,Pn = de.sample(de, group, 3, false) 
@@ -132,8 +187,10 @@ function snooker_update!(de, Pt, group)
 end
 
 """
-Selects base particle θb with probability proportional to weight
-* `group`: a group of particles
+    select_base(group)
+Selects base particle θb with probability proportional to weight.
+
+- `group`: a group of particles
 """
 function select_base(group)
     w = map(x -> x.weight, group)
@@ -143,11 +200,14 @@ function select_base(group)
 end
 
 """
+    recombination!(de, pt::Particle, pp::Particle)
+
 Resets parameters of proposal to previous value with probability
 (1-κ).
-* `de`: differential evolution object
-* `pt`: current partical
-* `pp`: proposal particle
+
+- `de`: differential evolution object
+- `pt`: current partical
+- `pp`: proposal particle
 """
 function recombination!(de, pt::Particle, pp::Particle)
     de.κ == 1.0 ? (return nothing) : nothing

@@ -4,13 +4,15 @@
 Finds optimal set of parameters.
 
 # Arguments
-* `model`: a model containing likelihood function with data and priors
-* `de`: differential evolution object
-* `n_iter`: number of iterations or samples
+
+- `model`: a model containing likelihood function with data and priors
+- `de`: differential evolution object
+- `n_iter`: number of iterations or samples
 
 # Keywords
-* `progress`: show progress (default false)
 
+- `progress=false`: show progress of algorithm
+- `kwargs...`: optional keyword arguments
 """
 optimize(model::DEModel, de::DE, n_iter::Int; progress=false, kwargs...) = _optimize(model::DEModel, de::DE, n_iter::Int; progress, stepfun=step!, kwargs...)
 
@@ -33,13 +35,16 @@ end
 Finds optimal set of parameters.
 
 # Arguments
-* `model`: a model containing likelihood function with data and priors
-* `de`: differential evolution object
-* `MCMCThreads`: pass MCMCThreads() object to run on multiple threads
-* `n_iter`: number of iterations or samples
+
+- `model`: a model containing likelihood function with data and priors
+- `de`: differential evolution object
+- `MCMCThreads`: pass MCMCThreads() object to run on multiple threads
+- `n_iter`: number of iterations or samples
 
 # Keywords
-* `progress`: show progress (default false)
+
+- `progress=false`: show progress of algorithm
+- `kwargs...`: optional keyword arguments
 """
 function optimize(model::DEModel, de::DE, ::MCMCThreads, n_iter::Int; progress=false, kwargs...)
     _optimize(model::DEModel, de::DE, n_iter::Int; progress, stepfun=pstep!, kwargs...)

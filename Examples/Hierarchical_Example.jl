@@ -1,7 +1,7 @@
 cd(@__DIR__)
 using DifferentialEvolutionMCMC, Random, Distributions
 
-Random.seed!(50514)
+Random.seed!(9528)
 
 bounds = (
     (-Inf,Inf),
@@ -43,7 +43,7 @@ end
 # number of responses 
 n_data = 100
 # number of subjects 
-n_subj = 30
+n_subj = 50
 # mean intercept
 β0 = 1.0
 # standard deviation intercept
@@ -71,11 +71,11 @@ model = DEModel(x;
 de = DE(;
     bounds, 
     sample = resample,
-    burnin = 5000, 
-    n_initial=(n_subj+1)*10,
+    burnin = 20_000, 
+    n_initial = (n_subj + 1) * 10,
     Np = 3,
-    n_groups = 1,
-    θsnooker=.1
+    n_groups = 2,
+    θsnooker = 0.1
 )
 
 n_iter = 50_000

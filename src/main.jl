@@ -1,14 +1,20 @@
-"""
-Samples from the posterior distribution
-* `model`: a model containing likelihood function with data and priors
-* `de`: differential evolution object
-* `n_iter`: number of iterations or samples
-* `progress`: show progress (default false)
+const DEMCMC = DifferentialEvolutionMCMC
 
-Function signature
-```@example
+"""
     sample(model::DEModel, de::DE, n_iter::Int; progress=false, kwargs...)
-```
+
+Samples from the posterior distribution.
+
+# Arguments
+
+- `model`: a model containing likelihood function with data and priors
+- `de`: differential evolution object
+- `n_iter`: number of iterations or samples
+
+# Keywords
+
+- `progress=false`: show progress of sampler
+- `kwargs...`: optional keyword arguments
 """
 sample(model::DEModel, de::DE, n_iter::Int; progress=false, kwargs...) = _sample(model::DEModel, de::DE, n_iter::Int; progress, stepfun=step!, kwargs...)
 
@@ -28,28 +34,37 @@ function _sample(model::DEModel, de::DE, n_iter::Int; progress=false, stepfun=st
 end
 
 """
+    sample(model::DEModel, de::DE, ::MCMCThreads, n_iter::Int; progress=false, kwargs...)
+
 Samples from the posterior distribution with each group of particles on a seperarate thread for
 the mutation and crossover steps.
-* `model`: a model containing likelihood function with data and priors
-* `de`: differential evolution object
-* `MCMCThreads`: pass MCMCThreads() object to run on multiple threads
-* `n_iter`: number of iterations or samples
-* `progress`: show progress (default false)
 
-Function signature
-```@example
-    sample(model::DEModel, de::DE, ::MCMCThreads, n_iter::Int; progress=false, kwargs...)
-```
+# Arguments
+
+- `model`: a model containing likelihood function with data and priors
+- `de`: differential evolution object
+- `MCMCThreads`: pass MCMCThreads() object to run on multiple threads
+- `n_iter`: number of iterations or samples
+
+# Keywords
+
+- `progress=false`: show progress of sampler
+- `kwargs...`: optional keyword arguments
 """
 function sample(model::DEModel, de::DE, ::MCMCThreads, n_iter::Int; progress=false, kwargs...)
     _sample(model::DEModel, de::DE, n_iter::Int; progress, stepfun=pstep!, kwargs...)
 end
 
 """
+    step!(model::DEModel, de::DE, groups)
+
 Perform a single step for DE-MCMC.
-* `model`: model containing a likelihood function with data and priors
-* `de`: DE-MCMC sampler object
-* `groups`: Array of vectors of particles
+
+# Arguments
+
+- `model`: model containing a likelihood function with data and priors
+- `de`: DE-MCMC sampler object
+- `groups`: Array of vectors of particles
 """
 function step!(model::DEModel, de::DE, groups)
     rand() <= de.α ? migration!(de, groups) : nothing
@@ -58,6 +73,17 @@ function step!(model::DEModel, de::DE, groups)
     return groups
 end
 
+"""
+    pstep!(model::DEModel, de::DE, groups)
+
+Perform a single step for DE-MCMC with each particle group on a separate thread.
+
+# Arguments
+
+- `model`: model containing a likelihood function with data and priors
+- `de`: DE-MCMC sampler object
+- `groups`: Array of vectors of particles
+"""
 function pstep!(model::DEModel, de::DE, groups)
     rand() <= de.α ? migration!(de, groups) : nothing
     groups = pmutate_crossover!(model, de, groups)
@@ -66,10 +92,15 @@ function pstep!(model::DEModel, de::DE, groups)
 end
 
 """
-On a single core, selects between mutation and crossover step with probability β
-* `model`: model containing a likelihood function with data and priors
-* `de`: differential evolution object
-* `group`: a vector of interacting particles (e.g. chains)
+    mutate_crossover!(model, de, groups)
+
+On a single core, selects between mutation and crossover step with probability β.
+
+# Arguments
+
+- `model`: model containing a likelihood function with data and priors
+- `de`: differential evolution object
+- `group`: a vector of interacting particles (e.g. chains)
 """
 function mutate_crossover!(model, de, groups)
     seeds = rand(UInt, length(groups))
@@ -78,10 +109,15 @@ function mutate_crossover!(model, de, groups)
 end
 
 """
-On multiple cores, selects between mutation and crossover step with probability β
-* `model`: model containing a likelihood function with data and priors
-* `de`: differential evolution object
-* `groups`: a vector of interacting particles (e.g. chains)
+    pmutate_crossover!(model, de, groups)
+
+On multiple threads, selects between mutation and crossover step with probability β.
+
+# Arguments
+
+- `model`: model containing a likelihood function with data and priors
+- `de`: differential evolution object
+- `groups`: a vector of interacting particles (e.g. chains)
 """
 function pmutate_crossover!(model, de, groups)
     seeds = rand(UInt, de.n_groups)
@@ -92,11 +128,16 @@ function pmutate_crossover!(model, de, groups)
 end
 
 """
-Selects between mutation and crossover step with probability β
-* `model`: model containing a likelihood function with data and priors
-* `de`: differential evolution object
-* `group`: a vector of interacting particles (e.g. chains)
-* `seed`: RNG seed
+    mutate_or_crossover!(model, de, group, seed)
+
+Selects between mutation and crossover step with probability β.
+
+# Arguments
+
+- `model`: model containing a likelihood function with data and priors
+- `de`: differential evolution object
+- `group`: a vector of interacting particles (e.g. chains)
+- `seed`: RNG seed
 """
 function mutate_or_crossover!(model, de, group, seed)
     Random.seed!(seed)
@@ -105,12 +146,17 @@ function mutate_or_crossover!(model, de, group, seed)
 end
 
 """
+    bundle_samples(model::DEModel, de::DE, groups, n_iter)
+
 Converts group particles to a chain object capable of generating convergence diagnostics
-and posterior summaries
-* `model`: model containing a likelihood function with data and priors
-* `de`: differential evolution object
-* `groups`: a vector of groups of particles
-* `n_iter`: number of iterations
+and posterior summaries.
+
+# Arguments
+
+- `model`: model containing a likelihood function with data and priors
+- `de`: differential evolution object
+- `groups`: a vector of groups of particles
+- `n_iter`: number of iterations
 """
 function bundle_samples(model::DEModel, de::DE, groups, n_iter)
     @unpack burnin, discard_burnin = de
@@ -139,10 +185,15 @@ function bundle_samples(model::DEModel, de::DE, groups, n_iter)
 end
 
 """
-Creates vectors of particles and samples initial parameter values from priors
-* `model`: model containing a likelihood function with data and priors
-* `de`: differential evolution object
-* `n_iter`: number of iterations
+    sample_init(model::DEModel, de::DE, n_iter)
+
+Creates vectors of particles and samples initial parameter values from priors.
+
+# Arguments
+
+- `model`: model containing a likelihood function with data and priors
+- `de`: differential evolution object
+- `n_iter`: number of iterations
 """
 function sample_init(model::DEModel, de::DE, n_iter)
     groups = [[Particle(Θ=model.sample_prior()) for p in 1:de.Np]

@@ -1,8 +1,14 @@
 """
-Mutates each particle
-* `model`: model containing a likelihood function with data and priors
-* `de`: differential evolution object
-* `group`: a group of particles
+    mutation!(model, de, group)
+
+Mutates each particle by adding random noise y ~ normal(0, σ), where σ is 
+a small number.
+
+# Arguments
+
+- `model`: model containing a likelihood function with data and priors
+- `de`: differential evolution object
+- `group`: a group of particles
 """
 function mutation!(model, de, group)
     @unpack σ,bounds = de

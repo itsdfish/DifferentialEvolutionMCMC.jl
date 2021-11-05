@@ -1,9 +1,14 @@
 """
-Initializes values for a particle
-* `model`: model containing a likelihood function with data and priors
-* `de`: differential evolution object
-* `p`: a particle
-* `n_iter`: the number of iterations
+    init_particle!(model, de, p, n_iter)
+    
+Initializes values for a particle.
+
+# Arguments
+
+- `model`: model containing a likelihood function with data and priors
+- `de`: differential evolution object
+- `p`: a particle
+- `n_iter`: the number of iterations
 """
 function init_particle!(model, de, p, n_iter)
     @unpack n_initial = de
@@ -18,27 +23,17 @@ function init_particle!(model, de, p, n_iter)
     return nothing
 end
 
-# prior_loglike(p) = prior_loglike(p...)
-
-# function priorlike(model, p)
-#     LL = 0.0
-#     for (pr,θ) in zip(model.priors, p.Θ)
-#         LL += get_LL(pr[1], θ)
-#     end
-#     return LL
-# end
-
-# # handles arbitrary distribution types. Not flexible enough otherwise
-# get_LL(d::MultivariateDistribution, x::Vector) = logpdf(d, x)
-# get_LL(d::UnivariateDistribution, x::Real) = logpdf(d, x)
-# get_LL(d, x) = loglikelihood(d, x)
-
 """
+    accept(proposal, current, log_adj=0.0)
+
 Metropolis-Hastings proposal selection
 Note: assumes weights are posterior log likelihoods
-* `proposal`: weight of proposal e.g. posterior log likelihood
-* `current`: weight of current value e.g. posterior log likelihood
-* `adj`: an adjustment term for the snooker update
+
+# Arguments
+
+- `proposal`: weight of proposal e.g. posterior log likelihood
+- `current`: weight of current value e.g. posterior log likelihood
+- `adj`: an adjustment term for the snooker update
 """
 function accept(proposal, current, log_adj=0.0)
     p = min(1.0, exp(proposal - current + log_adj))
@@ -46,9 +41,14 @@ function accept(proposal, current, log_adj=0.0)
 end
 
 """
-Checks whether parameter is within lower and upper bounds
-* `b`: boundary (lowerbound,upperbound)
-* `θ`: a parameter value
+    in_bounds(b, θ::Real)
+
+Checks whether parameter is within lower and upper bounds.
+
+# Arguments
+
+- `b`: boundary (lowerbound,upperbound)
+- `θ`: a parameter value
 """
 in_bounds(b, θ::Real) = θ >= b[1] && θ <= b[2]
 in_bounds(b, θ::Array{<:Real,N}) where {N} = all(x -> in_bounds(b, x), θ)
@@ -60,6 +60,18 @@ function in_bounds(de::DE, proposal)
     return true
 end
 
+"""
+    compute_posterior!(de, model, proposal)
+
+Computes posterior log likelihood of proposal particle. The value -Inf 
+is returned if the proposal is out of bounds. 
+
+# Arguments
+
+- `de`: differential evolution object
+- `model`: model containing a likelihood function with data and priors
+- `proposal`: the proposed particle
+"""
 function compute_posterior!(de, model, proposal)
     if in_bounds(de, proposal)
         proposal.weight = model.prior_loglike(proposal.Θ) + model.loglike(proposal.Θ)
@@ -69,6 +81,18 @@ function compute_posterior!(de, model, proposal)
     return nothing
 end
 
+"""
+    evaluate_fun!(de, model, proposal))
+
+Evaluates the fitness of an arbitrary function called `loglike`. This is used for 
+point estimation as it does not use a prior distribution.  
+
+# Arguments
+
+- `de`: differential evolution object
+- `model`: model containing a likelihood function with data and priors
+- `proposal`: the proposed particle
+"""
 function evaluate_fun!(de, model, proposal)
     if in_bounds(de, proposal)
         proposal.weight = model.loglike(proposal.Θ)
@@ -79,9 +103,13 @@ function evaluate_fun!(de, model, proposal)
 end
 
 """
+    get_names(model, p)
+
 Returns parameters names.
-* `model`: model containing a likelihood function with data and priors
-* `p`: a particle
+
+# Arguments
+- `p`: a particle
+- `model`: model containing a likelihood function with data and priors
 """
 function get_names(model, p)
     N = size.(p.Θ)
@@ -104,10 +132,14 @@ function get_names(model, p)
 end
 
 """
-Store samples after burnin period
-Selects between mutation and crossover step with probability β
-* `de`: differential evolution object
-* `groups`: groups of particles
+    store_samples!(de, groups)
+
+Store samples after burnin period. 
+
+# Arguments
+
+- `de`: differential evolution object
+- `groups`: groups of particles
 """
 function store_samples!(de, groups)
     for group in groups
@@ -134,13 +166,18 @@ end
 find_type(p) = Union{unique(typeof.(p))...}
 
 """
+    mh_update!(de, current, proposal, log_adj=0.0)
+
 Update particle based on Metropolis-Hastings rule.
-* `de`: differential evolution object
-* `current`: current particle
-* `proposal`: proposal particle
-* `log_adj`: an adjustment term for snooker update
+
+# Arguments
+
+- `de`: differential evolution object
+- `current`: current particle
+- `proposal`: proposal particle
+- `log_adj`: an adjustment term for snooker update
 """
-function Metropolis_Hastings_update!(de, current, proposal, log_adj=0.0)
+function mh_update!(de, current, proposal, log_adj=0.0)
     accepted = accept(proposal.weight, current.weight, log_adj)
     if accepted
         current.Θ = proposal.Θ

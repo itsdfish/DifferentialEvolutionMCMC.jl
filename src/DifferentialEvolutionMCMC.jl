@@ -8,6 +8,8 @@ module DifferentialEvolutionMCMC
     export DE, Particle, DEModel, sample, MCMCThreads, fixed_gamma
     export variable_gamma, random_gamma, evaluate_fun!, compute_posterior!
     export greedy_update!, optimize, get_optimal, resample, as_union
+    export DEMCMC
+    
     include("structs.jl")
     include("main.jl")
     include("optimize.jl")

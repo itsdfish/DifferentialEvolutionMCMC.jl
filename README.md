@@ -15,19 +15,47 @@ using DifferentialEvolutionMCMC, Random, Distributions
 Random.seed!(50514)
 ```
 
-Define the prior distributions as a NamedTuple of distribution objects and number of elements, N: (distribution, N). Omit the number of elements if the parameter is a scalar.
+Define a function that returns the prior log likelihood of parameters μ and σ. Note
+that order matters for parameters throughout. The algorithm expects parameters to have
+the same order.
 
 ```julia
-priors = (
-    μ = (Normal(0, 10),),
-    σ = (Truncated(Cauchy(0, 1), 0.0, Inf),)
-)
+function prior_loglike(μ, σ)
+    LL = 0.0
+    LL += logpdf(Normal(0, 1), μ)
+    LL += logpdf(truncated(Cauchy(0, 1), 0, Inf), σ)
+    return LL
+end
+```
+
+Define a function for the initial sample. Sampling from the prior distribution is
+a reasonable choice for most applications.
+
+```julia
+function sample_prior()
+    μ = rand(Normal(0, 1))
+    σ = rand(truncated(Cauchy(0, 1), 0, Inf))
+    return [μ,σ]
+end
+```
+
+Next, define a function for the log likelihood which accepts the data follow by the parameters (in the order specififed in the priors).
+
+```julia
+function loglike(data, μ, σ)
+    return sum(logpdf.(Normal(μ, σ), data))
+end
 ```
 
 Specify the upper and lower bounds of the parameters.
 
 ```julia
 bounds = ((-Inf,Inf),(0.0,Inf))
+```
+Define the names of parameters. Elements of parameter vectors do not need to be named.
+
+```julia
+names = (:μ,:σ)
 ```
 
 Generate simulated data from a normal distribution
@@ -36,25 +64,23 @@ Generate simulated data from a normal distribution
 data = rand(Normal(0.0, 1.0), 50)
 ```
 
-Next, define a function for the log likelihood which accepts the data follow by the parameters (in the order specififed in the priors). Create a second method that accepts a vector of parameters and maps it to the original function and makes a reference to the data.
+Now we will create a model object containing the sampling and log likelihood functions, the data and parameter names.
 
 ```julia
-function loglike(data, μ, σ)
-    return sum(logpdf.(Normal(μ, σ), data))
-end
-```
-
-Note that in some cases it might be preferable to pass your parameters as a vector rather than specify each parameter in the function definition. In such cases, you can use `loglike(data, θ...)`.
-
-Create a model object containing the prior and loglikelihood function and create a differential evolution object. Default settings can be overriden with keyword arguments.
-
-```julia
-model = DEModel(;priors, model=loglike, data)
-
-de = DE(;bounds, burnin=1000, priors)
+model = DEModel(; 
+    sample_prior, 
+    prior_loglike, 
+    loglike, 
+    data,
+    names
+)
 
 ```
 
+Next, define the DifferentialEvolution sampling object. This requires `bounds`, `burnin` and `Np`, which is the number of particles. 
+```julia
+de = DE(;bounds, burnin = 1000, Np = 6)
+```
 To run the sampler, pass the model and differential evolution object along with settings for the number iterations and MCMCMThreads() for multithreading.
 
 ```julia

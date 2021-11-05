@@ -14,7 +14,7 @@ using SafeTestsets
     
     prior_loglike(θ) = logpdf(Beta(1, 1), θ)
 
-    sample_prior() = [rand(Beta(1, 1))]
+    sample_prior() = rand(Beta(1, 1))
 
     bounds = ((0,1),)
 
@@ -55,7 +55,7 @@ end
 
     prior_loglike(θ) = logpdf(Beta(1, 1), θ)
 
-    sample_prior() = [rand(Beta(1, 1))]
+    sample_prior() = rand(Beta(1, 1))
 
     bounds = ((0,1),)
 
@@ -118,7 +118,7 @@ end
     
     prior_loglike(θ) = logpdf(Beta(1, 1), θ)
 
-    sample_prior() = [rand(Beta(1, 1))]
+    sample_prior() = rand(Beta(1, 1))
 
     bounds = ((0,1),)
 
