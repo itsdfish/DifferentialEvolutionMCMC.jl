@@ -1,5 +1,5 @@
 """
-    DE(;
+    function DE(;
         n_groups = 4, 
         priors = nothing, 
         Np, 
@@ -16,8 +16,9 @@
         generate_proposal = random_gamma, 
         update_particle! = mh_update!,
         evaluate_fitness! = compute_posterior!, 
-        sample = sample
-        blocking_on
+        sample = sample,
+        blocking_on = x -> false,
+        blocks = [false]
     )
 
 Differential Evolution MCMC object.
@@ -48,7 +49,12 @@ Metropolis-Hastings rule.
 - `sample`: a function for sampling particles during the crossover step. The default `sample` uses current particle
 parameter values whereas `resample` samples from the history of accepted values for each particle. Np must 3 or greater 
 when using `resample`.
-Constructor signature:
+- `blocking_on = x -> false`: a function that indicates whether block updating is used on each iteration. The function requires optimization_tests
+arguement for the DE sampler object and must return a true or false value. 
+- `blocks`: a vector of boolean vectors indicating which parameters to update. Each sub-vector represents a 
+block and each element in the sub-vector indicates which parameters are updated within the block. For example, [[true,false],[false,true]]
+indicates that the parameter in the first position is updated on the first block and the parameter in the second position is updated on the 
+second block. If a parameter is a vector or matrix, they are nested within the block sub-vector. 
 
 # References
 
@@ -101,7 +107,7 @@ function DE(;
         evaluate_fitness! = compute_posterior!, 
         sample = sample,
         blocking_on = x -> false,
-        blocks = [1,2]
+        blocks = [false]
     )
 
     if  (n_groups == 1) && (α > 0)

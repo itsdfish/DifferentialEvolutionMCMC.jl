@@ -94,7 +94,7 @@ end
 """
     p_update!(model, de, groups)(model, de, groups)
 
-On a single core, selects between mutation and crossover step with probability β.
+Multithreaded update of particles. Particles are updated by block or simultaneously.
 
 # Arguments
 
@@ -117,6 +117,17 @@ function p_update!(model, de, groups)
     end
 end
 
+"""
+    update!(model, de, groups)(model, de, groups)
+
+Particles are updated by block or simultaneously on a single thread.
+
+# Arguments
+
+- `model`: model containing a likelihood function with data and priors
+- `de`: differential evolution object
+- `group`: a vector of interacting particles (e.g. chains)
+"""
 function update!(model, de, groups)
     if de.blocking_on(de)
         return map(g -> block_update!(model, de, g), groups)
@@ -138,7 +149,7 @@ function block_update!(model, de, group)
 end
 
 """
-    mutate_or_crossover!(model, de, group, seed)
+    mutate_or_crossover!(model, de, group, seed::Number)
 
 Selects between mutation and crossover step with probability β.
 
@@ -147,14 +158,8 @@ Selects between mutation and crossover step with probability β.
 - `model`: model containing a likelihood function with data and priors
 - `de`: differential evolution object
 - `group`: a vector of interacting particles (e.g. chains)
-- `seed`: RNG seed
+- `seed::Number`: RNG seed
 """
-function mutate_or_crossover!(model, de, group, seed::Number, block_idx)
-    Random.seed!(seed)
-    mutate_or_crossover!(model, de, group, block_idx)
-    return group
-end
-
 function mutate_or_crossover!(model, de, group, seed::Number)
     Random.seed!(seed)
     mutate_or_crossover!(model, de, group)

@@ -1,5 +1,4 @@
-using DifferentialEvolutionMCMC, Test, Random, Turing, Parameters, Distributions
-import DifferentialEvolutionMCMC: select_groups, select_particles, shift_particles!, sample_init
+using DifferentialEvolutionMCMC, Test, Random, Turing, Distributions
 Random.seed!(973536)
 
 bounds = ((-Inf,Inf),(0.0,Inf))

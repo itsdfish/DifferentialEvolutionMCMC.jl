@@ -48,13 +48,10 @@ model = DEModel(;
 )
 
 # DEMCMC sampler object
-de = DE(;bounds, burnin = 1000, Np = 6, 
-    blocking_on = x -> true, blocks = [[true,false],[false,true]])
+de = DE(;bounds, burnin = 1000, Np = 6)
 # number of interations per particle
 n_iter = 2000
 ###################################################################################
 #                             estimate parameters
 ###################################################################################
-Random.seed!(1)
-@time chains = sample(model, de, MCMCThreads(), n_iter, progress=true)
-chains = sample(model, de, n_iter, progress=true)
+chains = sample(model, de, MCMCThreads(), n_iter, progress=true)

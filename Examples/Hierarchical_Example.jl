@@ -82,6 +82,18 @@ model = DEModel(x;
     names
 )
 
+# block update indicator
+# update hyper parameters first
+# update lower level parameters second
+blocks = [
+    [true,true,true,fill(false, n_subj),true],
+    [false,false,false,fill(true, n_subj),false],
+]
+blocks = as_union.(blocks)
+
+# use block updating on each iteration 
+blocking_on = x -> true
+
 # sampler object
 de = DE(;
     bounds, 
@@ -90,10 +102,12 @@ de = DE(;
     n_initial = (n_subj + 1) * 10,
     Np = 3,
     n_groups = 2,
-    θsnooker = 0.1
+    θsnooker = 0.1,
+    blocking_on,
+    blocks,
 )
 ###################################################################################
 #                             estimate parameters
 ###################################################################################
-n_iter = 50_000
+n_iter = 40_000
 chains = sample(model, de, MCMCThreads(), n_iter, progress=true)

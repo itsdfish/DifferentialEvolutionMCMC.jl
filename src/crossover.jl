@@ -16,13 +16,17 @@ function crossover!(model, de, group)
     return nothing
 end
 
-function adjust_loglike(Pt, proposal, Pz)
-    Np = length(Pt.Θ)
-    adj1 = norm(proposal - Pz)^(Np - 1)
-    adj2 = norm(Pt - Pz)^(Np - 1)
-    return log(adj1 / adj2)
-end
+"""
+    crossover!(model, de, group, pt::Particle)
 
+Performs crossover step for for a given particle pt
+
+# Arguments
+
+- `model`: model containing a likelihood function with data and priors
+- `de`: differential evolution object
+- `pt`: a target particle to be updated
+"""
 function crossover!(model, de, group, pt::Particle)
     if rand() ≤ de.θsnooker
         # generate the proposal
@@ -42,6 +46,18 @@ function crossover!(model, de, group, pt::Particle)
     end
 end
 
+"""
+    crossover!(model, de, group)
+
+Performs crossover step for each particle pt in the chain
+
+# Arguments
+
+- `model`: model containing a likelihood function with data and priors
+- `de`: differential evolution object
+- `group`: a group of particles
+- `block`: a vector of boolean values indicating which parameters to update
+"""
 function crossover!(model, de, group, block)
     for pt in group
         crossover!(model, de, group, pt, block)
@@ -49,6 +65,18 @@ function crossover!(model, de, group, block)
     return nothing
 end
 
+"""
+    crossover!(model, de, group, pt::Particle, block)
+
+Performs crossover step for a given particle pt.
+
+# Arguments
+
+- `model`: model containing a likelihood function with data and priors
+- `de`: differential evolution object
+- `group`: a group of particles
+- `block`: a vector of boolean values indicating which parameters to update
+"""
 function crossover!(model, de, group, pt::Particle, block)
     if rand() ≤ de.θsnooker
         # generate the proposal
@@ -224,7 +252,25 @@ function snooker_update!(de, Pt, group)
 end
 
 """
+    adjust_loglike(Pt, proposal, Pz)
+    
+The adjusted log likelihood component for a snooker update. 
+
+- `Pt`: the target particle from iteration n - 1
+- `proposal`: the proposal particle on iteration n 
+- `Pz`: the particle formed by the projection of particles m and n 
+"""
+function adjust_loglike(Pt, proposal, Pz)
+    Np = length(Pt.Θ)
+    adj1 = norm(proposal - Pz)^(Np - 1)
+    adj2 = norm(Pt - Pz)^(Np - 1)
+    return log(adj1 / adj2)
+end
+
+
+"""
     select_base(group)
+
 Selects base particle θb with probability proportional to weight.
 
 - `group`: a group of particles
