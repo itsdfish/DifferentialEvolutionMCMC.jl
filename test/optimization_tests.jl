@@ -29,6 +29,7 @@
     )
 
     de = DE(;
+        sample_prior,
         bounds,
         Np = 6, 
         n_groups = 1, 
@@ -43,7 +44,6 @@
 end
 
 @safetestset "maximum likelihood estimation" begin
-    cd(@__DIR__)
     using Test, DifferentialEvolutionMCMC, Random, Distributions
     import DifferentialEvolutionMCMC: maximize!
 
@@ -84,10 +84,11 @@ end
     )
     
     de = DE(;
+        sample_prior,
         bounds, 
-        burnin=1000, 
-        Np=6, 
-        n_groups=1, 
+        burnin = 1000, 
+        Np = 6, 
+        n_groups = 1, 
         update_particle! = maximize!,
         evaluate_fitness! = evaluate_fun!
     )

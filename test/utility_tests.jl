@@ -1,7 +1,6 @@
 @testset verbose = true "utility tests" begin 
     @safetestset "Discard Burnin" begin
         using DifferentialEvolutionMCMC, Test, Random, Parameters, Distributions
-        import DifferentialEvolutionMCMC: select_groups, select_particles, shift_particles!, sample_init
         Random.seed!(29542)
         N = 10
         k = rand(Binomial(N, .5))
@@ -30,12 +29,12 @@
         burnin = 1500
         n_iter = 3000
 
-        de = DE(; Np=4, bounds, burnin, discard_burnin=false)
+        de = DE(; sample_prior, Np=4, bounds, burnin, discard_burnin=false)
 
         chains = sample(model, de, n_iter)
         @test length(chains) == n_iter
 
-        de = DE(; Np=4, bounds, burnin)
+        de = DE(; sample_prior, Np=4, bounds, burnin)
         chains = sample(model, de, n_iter)
         @test length(chains) == burnin
     end
@@ -138,7 +137,7 @@
         burnin = 1500
         n_iter = 3000
 
-        de = DE(; Np=4, bounds, burnin, discard_burnin=false)
+        de = DE(; sample_prior, Np=4, bounds, burnin, discard_burnin=false)
 
         groups = sample_init(model, de, n_iter)
         sub_group = select_groups(de, groups)

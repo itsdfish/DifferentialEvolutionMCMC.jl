@@ -1,5 +1,5 @@
 cd(@__DIR__)
-using DifferentialEvolutionMCMC, Random, Parameters
+using Revise, DifferentialEvolutionMCMC, Random, Parameters
 using SequentialSamplingModels, Distributions
 Random.seed!(88484)
 
@@ -44,6 +44,6 @@ model = DEModel(;
     names
 )
 
-de = DE(;bounds, burnin=1500, n_groups=3, Np=15)
+de = DE(;sample_prior, bounds, burnin=1500, n_groups=3, Np=15)
 n_iter = 3000
 chain = sample(model, de, MCMCThreads(), n_iter, progress=true)

@@ -204,7 +204,7 @@ function bundle_samples(model::DEModel, de::DE, groups, n_iter)
             sΔ = s + offset
             temp = Float64[]
             for ni in 1:n_names
-                push!(temp, p.samples[sΔ,ni]...)
+                push!(temp, de.samples[sΔ,ni,c]...)
             end
             push!(temp, p.accept[sΔ], p.lp[sΔ])
             v[s,:,c] = temp'
@@ -227,12 +227,9 @@ Creates vectors of particles and samples initial parameter values from priors.
 - `n_iter`: number of iterations
 """
 function sample_init(model::DEModel, de::DE, n_iter)
-    groups = [[Particle(Θ=model.sample_prior()) for p in 1:de.Np]
+    de.samples = initialize_samples(de, model, n_iter)
+    id = 0
+    groups = [[init_particle(de, model, id+=1, n_iter) for p in 1:de.Np]
         for c in 1:de.n_groups]
-    for group in groups
-        for p in group
-            init_particle!(model, de, p, n_iter)
-        end
-    end
     return groups
 end

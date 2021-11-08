@@ -47,10 +47,11 @@ model = DEModel(;
 
 # DEMCMC sampler 
 de = DE(;
+    sample_prior,
     bounds, 
     sample = resample,
     burnin = 5000, 
-    n_initial=(n_μ + 1) * 10,
+    n_initial=(n_μ + 1) * 4,
     Np = 3,
     n_groups = 1,
     θsnooker = 0.1

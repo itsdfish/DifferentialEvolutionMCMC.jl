@@ -1,6 +1,5 @@
 @safetestset "Binomial Model" begin
     using DifferentialEvolutionMCMC, Test, Random, Turing, Parameters, Distributions
-    import DifferentialEvolutionMCMC: select_groups, select_particles, shift_particles!, sample_init
     Random.seed!(29542)
     N = 10
     k = rand(Binomial(N, .5))
@@ -25,7 +24,7 @@
         names
     )
 
-    de = DE(;bounds, burnin=1500, Np=3)
+    de = DE(;sample_prior, bounds, burnin=1500, Np=3)
 
     n_iter = 3000
     chains = sample(model, de, n_iter)

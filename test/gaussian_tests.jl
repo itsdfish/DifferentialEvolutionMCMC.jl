@@ -36,7 +36,7 @@ model = DEModel(;
     names
 )
 
-de = DE(;bounds, burnin=1500, Np=6)
+de = DE(;sample_prior, bounds, burnin=1500, Np=6)
 n_iter = 3000
 chains = sample(model, de, n_iter, progress=true)
 μ_de = describe(chains)[1][:,:mean]

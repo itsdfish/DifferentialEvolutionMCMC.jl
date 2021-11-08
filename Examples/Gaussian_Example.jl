@@ -48,7 +48,7 @@ model = DEModel(;
 )
 
 # DEMCMC sampler object
-de = DE(;bounds, burnin = 1000, Np = 6)
+de = DE(;sample_prior, bounds, burnin = 1000, Np = 6)
 # number of interations per particle
 n_iter = 2000
 ###################################################################################

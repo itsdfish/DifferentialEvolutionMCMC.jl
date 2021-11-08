@@ -45,6 +45,7 @@
     )
 
     de = DE(;
+        sample_prior,
         bounds, 
         burnin = 1000, 
         Np = 6,

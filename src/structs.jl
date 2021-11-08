@@ -85,6 +85,7 @@ second block. If a parameter is a vector or matrix, they are nested within the b
     sample
     blocking_on
     blocks
+    samples
 end
 
 function DE(;
@@ -106,13 +107,16 @@ function DE(;
         evaluate_fitness! = compute_posterior!, 
         sample = sample,
         blocking_on = x -> false,
-        blocks = [false]
+        blocks = [false],
+        sample_prior,
     )
 
     if  (n_groups == 1) && (α > 0)
         α = 0.0
         @warn "migration probability α > 0 but n_groups == 1. Changing α = 0.0"
     end
+
+    samples = initialize_samples(sample_prior)
 
     return DE(
         n_groups, 
@@ -133,7 +137,8 @@ function DE(;
         evaluate_fitness!, 
         sample,
         blocking_on,
-        blocks
+        blocks,
+        samples
     )
 end
 
@@ -195,26 +200,27 @@ end
 - `accept`: proposal acceptance. 1: accept, 0: reject
 - `weight`: particle weight based on model fit (currently posterior log likelihood)
 - `lp`: a vector of log posterior probabilities associated with each accepted proposal
+- `id`: particle id
 """
 mutable struct Particle{T}
     Θ::Vector{T}
-    samples::Array{T,2}
     accept::Vector{Bool}
     weight::Float64
     lp::Vector{Float64}
+    id::Int
 end
 
 Base.broadcastable(x::Particle) = Ref(x)
 
 function Particle(;
         Θ=[.0],
-        samples = Array{eltype(Θ),2}(undef, 1, 1),
         accept = Bool[], 
-        weight = 0.0
+        weight = 0.0,
+        id = 0
     )
-    return Particle(Θ, samples, accept, weight, Float64[])
+    return Particle(Θ, accept, weight, Float64[], id)
 end
 
-function Particle(Θ::Number, samples, accept, weight, lp) 
-    Particle([Θ], samples, accept, weight, lp)
+function Particle(Θ::Number, accept, weight, lp, id) 
+    Particle([Θ], accept, weight, lp, id)
 end

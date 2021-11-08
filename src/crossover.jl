@@ -108,34 +108,19 @@ Sample a random particle from previously accepted values for snooker update.
 - `de`: differential evolution object
 - `group`: a group of particles
 - `n`: number of particles to sample
-- `_`: sample with replacement if true (not used)
+- `replace`: sample with replacement if true
 """
-function resample(de, group, n, _)
+function resample(de, group, n, replace)
     P′ = Vector{eltype(group)}(undef,n)
     mx_idx = de.iter - 1
+    idx = sample_indices(de.samples, mx_idx, n; replace)
     for i in 1:n 
-        idx = rand(1:mx_idx)
-        j = rand(1:length(group))
-        P′[i] = Particle(;Θ=group[j].samples[idx,:])
+        P′[i] = Particle(;Θ=de.samples[idx[i][1],:,idx[i][2]])
     end
     return P′
 end
 
-# function resample(de, group, n, _)
-#     parms = []
-#     P′ = Vector{eltype(group)}(undef,n)
-#     mx_idx = de.iter - 1
-#     for p in group
-#         parms = [parms; p.samples[1:mx_idx,:]]
-#     end
-
-#     idx = sample(1:size(parms,1), n, replace=false)
-#     for i in 1:n 
-#         # println(parms[idx[i],:][1])
-#         P′[i] = Particle(;Θ=[parms[idx[i],:][1]])
-#     end
-#     return P′
-# end
+sample_indices(x, ub, n; replace) = @views sample(CartesianIndices(x[1:ub,1,:]), n; replace)
 
 """
     sample(de::DE, group_diff, n, replace) 

@@ -10,17 +10,33 @@ Initializes values for a particle.
 - `p`: a particle
 - `n_iter`: the number of iterations
 """
-function init_particle!(model, de, p, n_iter)
+function init_particle(de, model, id, n_iter)
     @unpack n_initial = de
+    p = Particle(;Θ=model.sample_prior(), id)
     N = n_iter + n_initial
-    p.samples = typeof(p.samples)(undef, N, length(p.Θ))
-    for i in 1:n_initial 
-        p.samples[i,:] = model.sample_prior()
-    end
     p.accept = fill(false, N)
     de.evaluate_fitness!(de, model, p)
     p.lp = fill(0.0, N)
-    return nothing
+    return p
+end
+
+function initialize_samples(sample_prior)
+    s = sample_prior()
+    return Array{eltype(s), 3}(undef,0,0,0)
+end
+
+function initialize_samples(de::DE, model, n_iter)
+    n = n_iter + de.n_initial
+    s = model.sample_prior()
+    n_parms = length(s)
+    n_p = de.Np * de.n_groups
+    samples = Array{eltype(de.samples), 3}(undef,n,n_parms,n_p)
+    for p in 1:n_p
+        for i in 1:de.n_initial
+            samples[i,:, p] = model.sample_prior()
+        end
+    end
+    return samples
 end
 
 """
@@ -144,18 +160,22 @@ Store samples after burnin period.
 function store_samples!(de, groups)
     for group in groups
         for p in group
-            add_sample!(p, de.iter)
+            add_sample!(de, p)
         end
     end
     return nothing
 end
 
-function add_sample!(p::Particle{T}, i) where {T <: Real}
-    p.samples[i,:] = p.Θ'
+function add_sample!(de, p::Particle{T}) where {T <: Real}
+    i = de.iter
+    de.samples[i,:,p.id] = p.Θ'
+    return nothing
 end
 
-function add_sample!(p, i)
-    p.samples[i,:] = p.Θ
+function add_sample!(de, p)
+    i = de.iter
+    de.samples[i,:,p.id] = p.Θ
+    return nothing
 end
 
 function as_union(p) 
