@@ -70,8 +70,32 @@
         @test p1.Θ[3] ≠ p2.Θ[3]
     end
 
+    @testset "projection" begin 
+        using Test, DifferentialEvolutionMCMC
+        import DifferentialEvolutionMCMC: project
+
+        # for example, see: https://www.youtube.com/watch?v=xSu-0xcRBo8&ab_channel=FireflyLectures
+        proj(x1, x2) = (x1' * x2) / (x2' * x2) * x2
+        x1 = [-1.0,4.0]
+        x2 = [2.0,7.0]
+        p1 = Particle(Θ = x1)
+        p2 = Particle(Θ = x2)
+        p3 = project(p1, p2)
+        correct = proj(x1, x2)
+
+        @test correct ≈ [52/53,182/53]
+        @test p3.Θ ≈ correct
+
+        x1 = [[-1.0,],4.0]
+        x2 = [[2.0,],7.0]
+        p1 = Particle(Θ = x1)
+        p2 = Particle(Θ = x2)
+        p3 = project(p1, p2)
+        @test vcat(p3.Θ...) ≈ correct
+    end
+
     @safetestset "Migration" begin
-        using DifferentialEvolutionMCMC, Test, Random, Turing, Parameters, Distributions
+        using DifferentialEvolutionMCMC, Test, Random, Parameters, Distributions
         import DifferentialEvolutionMCMC: select_groups, select_particles, shift_particles!, sample_init
 
         Random.seed!(459) #Random.seed!(0451) # 

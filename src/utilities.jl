@@ -204,7 +204,17 @@ function minimize!(de, current, proposal)
     return nothing
 end
 
-# project p1 on to p2
+"""
+    project(p1::Particle, p2::Particle)
+
+Returns the projection of particle `p1` onto particle `p2`. This method 
+works for vectors and nested arrays. 
+
+# Arguments
+
+- `p1::Particle`: base particle
+- `p2::Particle`: particle projected onto `p1`
+"""
 function project(p1::Particle, p2::Particle)
     v1,v2 = (0.0,0.0)
     for (Θ1,Θ2) in zip(p1.Θ, p2.Θ)

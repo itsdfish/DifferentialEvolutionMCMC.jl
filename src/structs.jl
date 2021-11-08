@@ -25,17 +25,16 @@ Differential Evolution MCMC object.
 
 # Keywords
 
-- `n_groups`: number of groups of particles. Default = 4
-- `Np`: number of particles per group. Default = number of parameters * 3 if
-    priors are passed
-- `burnin`: number of burnin iterations. Default = 1000
+- `n_groups=4`: number of groups of particles. 
+- `Np`: number of particles per group.
+- `burnin=1000`: number of burnin iterations
 - `discard_burnin`: indicates whether burnin samples are discarded. Default is true.
-- `α`: migration probability. Default = .1
-- `β`: mutation probability. Default = .1
-- `ϵ`: noise in crossover step. Default = .001
-- `σ`: standard deviation of noise added to parameters for mutation. Default = .05
-- `κ`: recombination with probability (1-κ) during crossover. Default = 1.0
-- `θsnooker`: sample along line x_i - z. Default = 0.0.  0.1 is recommended otherwise.
+- `α=.1`: migration probability.
+- `β=.1`: mutation probability.
+- `ϵ=.001`: noise in crossover step.
+- `σ=.05`: standard deviation of noise added to parameters for mutation.
+- `κ=1.0`: recombination with probability (1-κ) during crossover.
+- `θsnooker=0`: sample along line x_i - z. 0.1 is recommended if > 0.
 - `n_initial`: initial number of samples from the prior distribution when `sample=resample`. 10 times the number of parameters
 is a typical value
 - `bounds`: a vector of tuples for lower and upper bounds of each parameter

@@ -121,6 +121,22 @@ function resample(de, group, n, _)
     return P′
 end
 
+# function resample(de, group, n, _)
+#     parms = []
+#     P′ = Vector{eltype(group)}(undef,n)
+#     mx_idx = de.iter - 1
+#     for p in group
+#         parms = [parms; p.samples[1:mx_idx,:]]
+#     end
+
+#     idx = sample(1:size(parms,1), n, replace=false)
+#     for i in 1:n 
+#         # println(parms[idx[i],:][1])
+#         P′[i] = Particle(;Θ=[parms[idx[i],:][1]])
+#     end
+#     return P′
+# end
+
 """
     sample(de::DE, group_diff, n, replace) 
 
@@ -266,7 +282,6 @@ function adjust_loglike(Pt, proposal, Pz)
     adj2 = norm(Pt - Pz)^(Np - 1)
     return log(adj1 / adj2)
 end
-
 
 """
     select_base(group)

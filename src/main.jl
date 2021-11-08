@@ -92,7 +92,7 @@ function pstep!(model::DEModel, de::DE, groups)
 end
 
 """
-    p_update!(model, de, groups)(model, de, groups)
+    p_update!(model, de, groups)
 
 Multithreaded update of particles. Particles are updated by block or simultaneously.
 
@@ -197,13 +197,13 @@ function bundle_samples(model::DEModel, de::DE, groups, n_iter)
     offset = discard_burnin ? burnin : 0
     all_names = get_names(model, particles[1])
     n_parms = length(all_names)
-    Nnames = length(model.names)
+    n_names = length(model.names)
     v = fill(0.0, Ns, n_parms, Np)
     for (c,p) in enumerate(particles)
         for s in 1:Ns
             sΔ = s + offset
             temp = Float64[]
-            for ni in 1:Nnames
+            for ni in 1:n_names
                 push!(temp, p.samples[sΔ,ni]...)
             end
             push!(temp, p.accept[sΔ], p.lp[sΔ])
