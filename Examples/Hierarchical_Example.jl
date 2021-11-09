@@ -80,17 +80,17 @@ model = DEModel(;
 # block update indicator
 # update hyper parameters first
 # update lower level parameters second
-# blocks = [
-#     [true,true,fill(false, n_subj),true],
-#     [false,false,fill(true, n_subj),false],
-# ]
-# blocks = as_union.(blocks)
-
-blocks = [[true,true,fill(false, n_subj),true],]
-subj_blocks = [[false,false,fill(false, n_subj),false] for i in 1:n_subj]
-map(i -> subj_blocks[i][3][i] = true, 1:n_subj)
-push!(blocks, subj_blocks...)
+blocks = [
+    [true,true,fill(false, n_subj),true],
+    [false,false,fill(true, n_subj),false],
+]
 blocks = as_union.(blocks)
+
+# blocks = [[true,true,fill(false, n_subj),true],]
+# subj_blocks = [[false,false,fill(false, n_subj),false] for i in 1:n_subj]
+# map(i -> subj_blocks[i][3][i] = true, 1:n_subj)
+# push!(blocks, subj_blocks...)
+# blocks = as_union.(blocks)
 
 
 # use block updating on each iteration 
@@ -108,7 +108,7 @@ de = DE(;
     θsnooker = 0.1,
     blocking_on,
     blocks,
-    generate_proposal = variable_gamma
+    #generate_proposal = variable_gamma
 )
 ###################################################################################
 #                             estimate parameters
