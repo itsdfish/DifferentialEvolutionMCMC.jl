@@ -151,7 +151,6 @@ Generate proposal according to θ' = θt + γ1(θm − θn) + γ2(θb − θt) +
 - `group`: a group of particles
 """
 function random_gamma(de, Pt, group)
-    Np = length(Pt.Θ)
     # select the base particle θb
     Pb = select_base(group)
     # group without Pb
@@ -184,7 +183,6 @@ where γ = 2.38.
 - `group`: a group of particles
 """
 function fixed_gamma(de, Pt, group)
-    Np = length(Pt.Θ)
     group_diff = setdiff(group, [Pt])
     # sample particles for θm and θn
     Pm,Pn = de.sample(de, group_diff, 2, false) 
@@ -212,7 +210,7 @@ where γ = 2.38/√(2d) where d is the number of parameters
 - `group`: a group of particles
 """
 function variable_gamma(de, Pt, group)
-    Np = length(Pt.Θ)
+    Np = sum(length.(Pt.Θ))
     group_diff = setdiff(group, [Pt])
     # sample particles for θm and θn
     Pm,Pn = de.sample(de, group_diff, 2, false) 
@@ -238,10 +236,15 @@ Performs snooker update during crossover
 - `group`: a group of particles
 """
 function snooker_update!(de, Pt, group)
+    # sample 3 particles without replacement
     Pz,Pm,Pn = de.sample(de, group, 3, false) 
+    # difference vector for old value and random particle z
     Pd = Pt - Pz
+    # project Pm on to Pd 
     Pr1 = project(Pm, Pd)
+    # project Pn on to Pd 
     Pr2 = project(Pn, Pd)
+    # random γ value
     γ = rand(Uniform(1.2, 2.2))
     # sample noise for each parameter
     b = Uniform(-de.ϵ, de.ϵ)
@@ -262,7 +265,7 @@ The adjusted log likelihood component for a snooker update.
 - `Pz`: the particle formed by the projection of particles m and n 
 """
 function adjust_loglike(Pt, proposal, Pz)
-    Np = length(Pt.Θ)
+    Np = sum(length.(Pt.Θ))
     adj1 = norm(proposal - Pz)^(Np - 1)
     adj2 = norm(Pt - Pz)^(Np - 1)
     return log(adj1 / adj2)

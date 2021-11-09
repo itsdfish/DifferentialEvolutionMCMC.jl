@@ -12,7 +12,8 @@ Initializes values for a particle.
 """
 function init_particle(de, model, id, n_iter)
     @unpack n_initial = de
-    p = Particle(;Θ=model.sample_prior(), id)
+    Θ = de.n_initial > 0 ? de.samples[1,:,id] : model.sample_prior()
+    p = Particle(;Θ, id)
     N = n_iter + n_initial
     p.accept = fill(false, N)
     de.evaluate_fitness!(de, model, p)

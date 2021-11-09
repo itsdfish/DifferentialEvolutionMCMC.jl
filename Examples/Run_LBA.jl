@@ -44,6 +44,6 @@ model = DEModel(;
     names
 )
 
-de = DE(;sample_prior, bounds, burnin=1500, n_groups=3, Np=15)
+de = DE(;sample_prior, sample_prior, bounds, burnin=1500, n_groups=3, Np=15)
 n_iter = 3000
 chain = sample(model, de, MCMCThreads(), n_iter, progress=true)

@@ -73,7 +73,7 @@ model = DEModel(
     names
 )
 
-de = DE(;bounds, burnin=1000, Np=12, n_groups=3)
+de = DE(;sample_prior, bounds, burnin=1000, Np=12, n_groups=3)
 n_iter = 3000
 chains = sample(model, de, MCMCThreads(), n_iter, progress=true)
 

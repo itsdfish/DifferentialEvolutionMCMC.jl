@@ -29,6 +29,7 @@ model = DEModel(;
 )
 
 de = DE(;
+    sample_prior,
     bounds,
     Np = 6, 
     n_groups = 1, 

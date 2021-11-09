@@ -39,7 +39,6 @@
         @test length(chains) == burnin
     end
 
-
     @safetestset "reset!" begin
         using DifferentialEvolutionMCMC, Test
         import DifferentialEvolutionMCMC: reset!
@@ -156,5 +155,46 @@
         for (i,c,r) in zip(1:2, p_idx[1:2], ridx)
             @test sub_group[i][c].Θ == groups[r][c].Θ
         end
+    end
+
+    @safetestset "particle operations" begin
+        using DifferentialEvolutionMCMC, Test, Random, Distributions
+        Random.seed!(29542)
+
+        p1 = Particle(Θ = [1.,2.0])
+        pr = p1 + 2
+        @test pr.Θ ≈ [3,4]
+
+        p1 = Particle(Θ = [1.,2.0])
+        pr = p1 * 4
+        @test pr.Θ ≈ [4,8]
+
+        p1 = Particle(Θ = [1.,2.0])
+        p2 = Particle(Θ = [1.,2.0])
+        pr = p1 + p2
+        @test pr.Θ ≈ [2,4]
+
+        p1 = Particle(Θ = [1.,2.0])
+        p2 = Particle(Θ = [1.,2.0])
+        pr = 3 * (p1 + p2)
+        @test pr.Θ ≈ [6,12]
+
+        p1 = Particle(Θ = [1.,2.0])
+        p2 = Particle(Θ = [-2.,3.0])
+        pr = 3 * (p1 - p2)
+        @test pr.Θ ≈ [9,-3]
+
+        p1 = Particle(Θ = [1.,2.0])
+        p2 = Particle(Θ = [-2.,3.0])
+        p3 = Particle(Θ = [-2.,3.0])
+        pr = 3 * (p1 - p2) + p3
+        @test pr.Θ ≈ [7,0]
+
+
+        p1 = Particle(Θ = [1.,2.0])
+        b = Uniform(-.1, .1)
+        pr = p1 + b
+        @test p1.Θ ≈ pr.Θ atol = .2 # cummulative error
+        @test p1.Θ ≠ pr.Θ
     end
 end

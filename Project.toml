@@ -1,7 +1,7 @@
 name = "DifferentialEvolutionMCMC"
 uuid = "607db5a9-722a-4af8-9a06-1810c0fe385b"
 authors = ["itsdfish"]
-version = "0.6.1"
+version = "0.7.0"
 
 [deps]
 AbstractMCMC = "80f14c24-f653-4e6a-9b94-39d6b0f70001"

@@ -1,5 +1,5 @@
 cd(@__DIR__)
-using DifferentialEvolutionMCMC, Random, Distributions
+using Revise, DifferentialEvolutionMCMC, Random, Distributions
 Random.seed!(50514)
 
 # number of variables 
@@ -9,7 +9,7 @@ n_d = 100
 # random μ parameters
 μs = rand(Normal(0.0, 1.0), n_μ)
 # data
-data = rand(MvNormal(μs, 1.0), n_d)
+data = rand(MvNormal(μs, 1.0 * I), n_d)
 
 # function for initial values
 function sample_prior()
@@ -28,7 +28,7 @@ end
 
 # likelihood function 
 function loglike(data, μs, σ)
-    return sum(logpdf(MvNormal(μs, σ), data))
+    return sum(logpdf(MvNormal(μs, σ^2 * I), data))
 end
 
 # upper and lower bounds of parameters
@@ -51,10 +51,10 @@ de = DE(;
     bounds, 
     sample = resample,
     burnin = 5000, 
-    n_initial=(n_μ + 1) * 4,
+    n_initial = (n_μ + 1) * 4,
     Np = 3,
     n_groups = 1,
-    θsnooker = 0.1
+    θsnooker = 0.1,
 )
 # sample from the posterior distribution 
 n_iter = 50_000
