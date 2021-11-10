@@ -79,7 +79,7 @@ model = DEModel(;
 
 Next, define the DifferentialEvolution sampling object. This requires `bounds`, `burnin` and `Np`, which is the number of particles. 
 ```julia
-de = DE(;bounds, burnin = 1000, Np = 6)
+de = DE(;sample_prior, bounds, burnin = 1000, Np = 6)
 ```
 To run the sampler, pass the model and differential evolution object along with settings for the number iterations and MCMCMThreads() for multithreading.
 
