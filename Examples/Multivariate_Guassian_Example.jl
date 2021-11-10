@@ -1,5 +1,6 @@
 cd(@__DIR__)
 using Revise, DifferentialEvolutionMCMC, Random, Distributions
+using LinearAlgebra
 Random.seed!(50514)
 
 # number of variables 

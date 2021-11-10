@@ -1,7 +1,6 @@
 using DifferentialEvolutionMCMC, Test, Random, Turing, Parameters, Distributions
 using SequentialSamplingModels, LinearAlgebra
-import DifferentialEvolutionMCMC: select_groups, select_particles, shift_particles!, sample_init
-Random.seed!(59391)
+Random.seed!(788)
 
 dist = LNR(μ=[-2.,-2.,-3.,-3], σ=1.0, ϕ=.5)
 data = rand(dist, 100)
