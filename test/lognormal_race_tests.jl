@@ -1,6 +1,6 @@
 using DifferentialEvolutionMCMC, Test, Random, Turing, Parameters, Distributions
 using SequentialSamplingModels, LinearAlgebra
-Random.seed!(788)
+Random.seed!(9918)
 
 dist = LNR(μ=[-2.,-2.,-3.,-3], σ=1.0, ϕ=.5)
 data = rand(dist, 100)
@@ -55,7 +55,7 @@ rhat = describe(chains)[1][:,:rhat]
     data ~ LNR(μ=μ, σ=σ, ϕ=ϕ)
 end
 
-chn = sample(model1(data), NUTS(1000, .85), 2000)
+chn = sample(model1(data), NUTS(1500, .85), 3000)
 μ_nuts = describe(chn)[1][:,:mean]
 σ_nuts = describe(chn)[1][:,:std]
 
