@@ -47,6 +47,10 @@ chains = sample(model, de, MCMCThreads(), n_iter, progress=true)
 σ_de = describe(chains)[1][:,:std]
 rhat = describe(chains)[1][:,:rhat]
 
+import Distributions: loglikelihood
+
+loglikelihood(d::LNR, data::Vector{<:Tuple}) = sum(logpdf.(d, data))
+
 @model model1(data) = begin
     min_rt = minimum(x -> x[2], data)
     μ ~ MvNormal(zeros(4), I * 3^2)

@@ -160,25 +160,3 @@ stan_sample(
 samples = read_samples(stan_model, :mcmcchains)
 #rhats = filter(!isnan, MCMCChains.ess_rhat(samples).nt.rhat)
 #mean(rhats .> 1.01)
-###################################################################################
-#                             Turing
-###################################################################################
-# using Turing, ReverseDiff, Memoization
-# Turing.setadbackend(:reversediff)
-# Turing.setrdcache(true)
-
-# @model function turing_model(y, x, n_subj, idx)
-#     β0 ~ Normal(1, 1)
-#     β1 ~ Normal(.5, 1)
-#     σ ~ truncated(Cauchy(0, 1), 0, Inf)
-#     σβ0 ~ truncated(Cauchy(0, 1), 0, Inf)
-#     β0i ~ filldist(Normal(0., σβ0), n_subj)
-
-#     μs = β0 .+ β0i[idx] .+ β1 * x
-#     y ~ MvNormal(μs, σ)
-# end
-
-# idx = repeat(1:n_subj, inner=n_data)
-# y = vcat(data...)
-# xrep = repeat(x, inner=n_subj)
-# turing_samples = sample(turing_model(y, xrep, n_subj, idx), NUTS(1000, .65), MCMCThreads(), 1000, 4)
