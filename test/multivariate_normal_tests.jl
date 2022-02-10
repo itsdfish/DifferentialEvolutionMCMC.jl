@@ -63,6 +63,8 @@
     sds = describe(chains)[1][1:n_μ,:std]
     means = describe(chains)[1][1:n_μ,:mean]
     @test all(x -> isapprox(x, 0.1; atol = .01), sds)
-    @test all(x -> isapprox(x, 0.0; atol = .2), means)
+    @test all(x -> isapprox(x, 0.0; atol = .3), means)
     @test std(means) ≈ 0.1 atol = .01
+    data_means = mean(data, dims=2)
+    @test cor(data_means, means)[1] > .98
 end

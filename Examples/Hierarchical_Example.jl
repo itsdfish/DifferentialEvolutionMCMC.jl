@@ -1,4 +1,9 @@
 ###################################################################################
+#                             Warning
+###################################################################################
+# This is a work in progress. Convergence is currently sporadic. 
+# Please submit PR if you would like to improve hierarchical models. 
+###################################################################################
 #                             load dependencies
 ###################################################################################
 cd(@__DIR__)
@@ -33,7 +38,7 @@ function loglike(data, μβ0, σβ0, β0, σ)
     for s in 1:length(data)
         μ = μβ0 + β0[s] 
         y = data[s] .- μ
-        LL += sum(logpdf(Normal(0, σ), y))
+        LL += sum(logpdf.(Normal(0, σ), y))
     end
     return LL
 end
