@@ -39,7 +39,7 @@ function sample_prior()
 end
 ```
 
-Next, define a function for the log likelihood which accepts the data follow by the parameters (in the order specififed in the priors).
+Next, define a function for the log likelihood which accepts the data followed by the parameters (in the order specififed in the priors).
 
 ```julia
 function loglike(data, μ, σ)
@@ -81,7 +81,7 @@ Next, define the DifferentialEvolution sampling object. This requires `bounds`, 
 ```julia
 de = DE(;sample_prior, bounds, burnin = 1000, Np = 6)
 ```
-To run the sampler, pass the model and differential evolution object along with settings for the number iterations and MCMCMThreads() for multithreading.
+To run the sampler, pass the model and differential evolution object along with settings for the number of iterations and MCMCMThreads() for multithreading.
 
 ```julia
 n_iter = 2000
