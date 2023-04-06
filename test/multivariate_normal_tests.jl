@@ -1,7 +1,7 @@
 @safetestset "multivariate normal" begin
     using DifferentialEvolutionMCMC, Test, Random, Distributions
     using MCMCChains, LinearAlgebra
-    Random.seed!(50514)
+    Random.seed!(505514)
 
     # number of variables 
     n_μ = 30

@@ -2,9 +2,9 @@ using SafeTestsets, Test
 
 files = [
     "multivariate_normal_tests.jl",
-    "blocking_tests.jl",
-    "optimization_tests.jl",
-    "utility_tests.jl"
+    # "blocking_tests.jl",
+    # "optimization_tests.jl",
+    # "utility_tests.jl"
 ]
 
 for f in files

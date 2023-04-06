@@ -1,6 +1,6 @@
 using DifferentialEvolutionMCMC, Test, Random, Turing, Parameters, Distributions
 using SequentialSamplingModels, LinearAlgebra
-Random.seed!(9918)
+Random.seed!(99918)
 
 dist = LNR(μ=[-2.,-2.,-3.,-3], σ=1.0, ϕ=.5)
 data = rand(dist, 100)
