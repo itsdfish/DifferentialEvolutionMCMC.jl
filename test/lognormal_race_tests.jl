@@ -1,6 +1,6 @@
 using DifferentialEvolutionMCMC, Test, Random, Turing, Parameters, Distributions
 using SequentialSamplingModels, LinearAlgebra
-Random.seed!(99918)
+Random.seed!(9918)
 
 dist = LNR(μ=[-2.,-2.,-3.,-3], σ=1.0, ϕ=.5)
 data = rand(dist, 100)
@@ -39,7 +39,7 @@ model = DEModel(;
 )
 
 de = DE(;sample_prior, bounds, burnin=2000, Np=24, n_groups=4)
-n_iter = 4000
+n_iter = 5000
 chains = sample(model, de, MCMCThreads(), n_iter, progress=true)
 
 
