@@ -59,7 +59,8 @@ loglikelihood(d::LNR, data::Vector{<:Tuple}) = sum(logpdf.(d, data))
     data ~ LNR(μ=μ, σ=σ, ϕ=ϕ)
 end
 
-chn = sample(model1(data), NUTS(1500, .85), 3000)
+Random.seed!(68541)
+chn = sample(model1(data), NUTS(1500, .85), 4000)
 μ_nuts = describe(chn)[1][:,:mean]
 σ_nuts = describe(chn)[1][:,:std]
 
