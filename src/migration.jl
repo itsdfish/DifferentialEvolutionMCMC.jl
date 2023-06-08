@@ -64,9 +64,8 @@ Select particle from a single chain inversely proportional to its weight.
 function select_particle(group)
     w = map(x -> x.weight, group)
     θ = exp.(-w) / sum(exp.(-w))
-    idx = sample(1:length(group), Weights(θ))
     # if numberical error occurs, select the worst particle index (lower is worse)
-    idx = any(isnan, θ) ? findmin(w)[2] : idx
+    idx = any(isnan, θ) ? findmin(w)[2] : sample(1:length(group), Weights(θ))
     return idx,group[idx]
 end
 
