@@ -117,7 +117,7 @@ model = DEModel(;
     names)
 ```
 ## Define Sampler
-Next, we will create a sampler with the constructor `DE`. Here, we will pass the `sample_prior` function and the variable `bounds`, which constains the lower and upper bounds of each parameter. In addition, we will specify $1,000$ burnin samples, `Np=3` groups of particles (default 4 per parameter in each group), and proposal noise of `σ=.01`.
+Next, we will create a sampler with the constructor `DE`. Here, we will pass the `sample_prior` function and the variable `bounds`, which constains the lower and upper bounds of each parameter. In addition, we will specify $1,000$ burnin samples, `Np=3` particles per group (default 4 particles per group) and proposal noise of `σ=.01`.
 ```@example binomial_setup
 de = DE(;sample_prior, bounds, burnin=1000, Np=3, σ=.01)
 ```

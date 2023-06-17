@@ -25,8 +25,7 @@ model = DEModel(;
     sample_prior, 
     loglike = rastrigin, 
     data = nothing,
-    names
-)
+    names)
 
 de = DE(;
     sample_prior,
@@ -34,8 +33,7 @@ de = DE(;
     Np = 6, 
     n_groups = 1, 
     update_particle! = minimize!,
-    evaluate_fitness! = evaluate_fun!
-)
+    evaluate_fitness! = evaluate_fun!)
 
 
 
