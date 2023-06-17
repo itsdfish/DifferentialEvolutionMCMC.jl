@@ -1,5 +1,5 @@
 cd(@__DIR__)
-using DifferentialEvolutionMCMC, Random, Parameters, Distributions
+using DifferentialEvolutionMCMC, Random, Distributions
 Random.seed!(88484)
 
 prior_loglike(θ) = logpdf(Beta(1, 1), θ)
@@ -14,7 +14,7 @@ k = rand(Binomial(N, .5))
 data = (N = N,k = k)
 
 function loglike(data, θ)
-    @unpack N,k = data
+    (;N,k) = data
     n_sim = 10^4
     counter(_) = rand(Binomial(N, θ)) == k ? 1 : 0
     cnt = mapreduce(counter, +, 1:n_sim)

@@ -1,0 +1,5 @@
+build/
+site/
+Manifest.toml
+docs/build/
+temp.jl
