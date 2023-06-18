@@ -35,17 +35,17 @@ chains = sample(model, de, MCMCThreads(), n_iter, progress=true)
 
 This simple example using a binomial model will guide you through the process of performing Bayesin parameter estimation with Differential Evolution MCMC. Suppose we observe $N$ samples from a random binomial process and observe $k$ successes. Formally, this can be stated as:
 
-$k \sim \mathrm{Binomial}(N, \theta)$
+$k \sim \mathrm{Binomial}(N, \theta),$
 
-where $\theta$ is a parameter representing the probability of success. Our goal is to estimate the probability of success $\theta$ from the $k$. Let's assume the prior distribution of $theta$ is given by
+where $\theta$ is a parameter representing the probability of success. Our goal is to estimate the probability of success $\theta$ from the $k$. Let's assume the prior distribution of $theta$ is given by:
 
-$\theta \sim \mathrm{beta}(1, 1)$
+$\theta \sim \mathrm{beta}(1, 1).$
 
 In this simple case, the posterior distribution of $\theta$ has a simple closed-form solution:
 
-$\theta_{|k} \sim \mathrm{beta}(1 + k, 1 + N - k)$.
+$\theta_{|k} \sim \mathrm{beta}(1 + k, 1 + N - k).$
 
- We will use this fact to verify that the MCMC sampler is working correctly. 
+We will use this fact to verify that the MCMC sampler is working correctly. 
 
 ## Load Packages
 Our first step is to load the required packages including `StatsPlots.jl` for plotting the MCMC chain.
