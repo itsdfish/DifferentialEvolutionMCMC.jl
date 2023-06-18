@@ -123,7 +123,7 @@ de = DE(;sample_prior, bounds, burnin=1000, Np=3, σ=.01)
 ```
 
 ## Estimate Parameter
-The code block below runs the sampler for $2000$ trials with each group of particles running on a separate thread. The progress bar is also set to display. 
+The code block below runs the sampler for $2000$ iterations with each group of particles running on a separate thread. The progress bar is also set to display. 
 ```@example binomial_setup
 n_iter = 2000
 chains = sample(model, de, MCMCThreads(), n_iter, progress=true)

@@ -8,7 +8,7 @@ function sample_prior()
     return [rand(Uniform(-5, 5), 2)]
  end
 
- function rastrigin(data, x)
+ function rastrigin(_, x)
      A = 10.0
      n = length(x)
      y = A * n

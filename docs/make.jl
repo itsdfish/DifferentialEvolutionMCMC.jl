@@ -15,7 +15,8 @@ makedocs(
     modules = [DifferentialEvolutionMCMC],
     pages = ["home" => "index.md",
     "examples" => ["Binomial Model" => "binomial.md",
-                "Gaussian Model" => "gaussian.md"],
+                "Gaussian Model" => "gaussian.md",
+                "Optimization" => "optimization.md"],
     "api" => "api.md"]
 )
 

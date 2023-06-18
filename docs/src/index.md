@@ -1,14 +1,15 @@
 # DifferentialEvolutionMCMC.jl
 
-Documentation for DifferentialEvolutionMCMC is under construction.
-
 ```@setup de_animation 
 using DifferentialEvolutionMCMC
 using DifferentialEvolutionMCMC: sample_init
 using DifferentialEvolutionMCMC: crossover!
 using Distributions
 using StatsPlots
+#using PyPlot
 using Random
+
+#pyplot()
 
 Random.seed!(81872)
 
@@ -64,18 +65,18 @@ animation = @animate for i in 1:n_iter
 end
 gif(animation, "de_animation.gif", fps = 4)
 ```
-This Julia package provides tools for  performing Bayesian parameter estimation using Differential Evolution MCMC (DEMCMC). You can find several examples with the navigation panel on the left. 
+Welcome to DifferentialEvolutionMCMC.jl. With this package, you can perform Bayesian parameter estimation using Differential Evolution MCMC (DEMCMC), and perform optimization using the basic DE algorithm  Please see the navigation panel on the left for information pertaining to the API and runnable examples. 
 
 ## How Does it Work?
 ### Intuition 
 
-The basic idea behind DEMCMC is that a group of $P$ interacting particles traverse the parameter space and share information about the joint posterior distribution of model parameters. Across many iterations, the samples obtained from the particles will approximate the posterior distribution. The image below illustrates how the particles sample from the posterior distribution of $\mu$ and $\sigma$ of a simple Gaussian model. In this example, five observations were sampled from a Gaussian distribution with $\mu=0$ and $\sigma=1.0$.  The DEMCMC sampler consists of four color coded groups of particles which operate semi-independently from each other. Note that the dashed lines represent the maximum likelihood estimates. The particles cluster near the maximum likelihood estimates because the true parameters are close the center of the prior distributions. 
+The basic idea behind DEMCMC is that a group of interacting particles traverse the parameter space and share information about the joint posterior distribution of model parameters. Across many iterations, the samples obtained from the particles will approximate the posterior distribution. The image below illustrates how the particles sample from the posterior distribution of $\mu$ and $\sigma$ of a simple Gaussian model. In this example, five observations were sampled from a Gaussian distribution with $\mu=0$ and $\sigma=1.0$. The DEMCMC sampler consists of four color coded groups of particles which operate semi-independently from each other. Note that the dashed lines represent the maximum likelihood estimates. The particles cluster near the maximum likelihood estimates because the true parameters are close the center of the prior distributions. 
 
 ![](de_animation.gif)
 
 ### Technical Description 
 
-This section provides a more technical explanation of the basic algorithm. Please see the references below for more details. More formally, a particle $p \in [1,2,\dots, P]$ is a vector of parameters in parameter space defined as:
+This section provides a more technical explanation of the basic algorithm. Please see the references below for more details. More formally, a particle $p \in [1,2,\dots, P]$ is a vector of $n$ parameters in a $\mathbb{R}^n$ parameter space defined as:
 
 $\Theta_p = [\theta_{p,1},\theta_{p,2},\dots \theta_{p,n}].$ 
 
@@ -83,7 +84,7 @@ On each iteration $i$, a new position for each particle $p$ is proposed by addin
 
 $\Theta_p^\prime = \Theta_p + \gamma (\Theta_j - \Theta_k) + b,$
 
-where $b \sim \mathrm{uniform}(-\epsilon, \epsilon)$. DEMCMC uses the difference between randomly selected particles to leverage approximate derivatives in the proposal process. The proposal is accepted according to the Metropolis-Hastings rule whereby the proposal is always accepted if its likelihood is greater than the current position, but is accepted proportionally to the ratio of likelihoods otherwise.
+where $b \sim \mathrm{uniform}(-\epsilon, \epsilon)$. DEMCMC uses the difference between randomly selected particles to leverage approximate derivatives in the proposal process. The proposal is accepted according to the Metropolis-Hastings rule whereby the proposal is always accepted if its log likelihood is greater than that of the current position, but is accepted proportionally to the ratio of log likelihoods otherwise.
 # References
 
 Ter Braak, C. J. (2006). A Markov Chain Monte Carlo version of the genetic algorithm Differential Evolution: easy Bayesian computing for real parameter spaces. Statistics and Computing, 16, 239-249.
