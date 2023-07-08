@@ -102,17 +102,32 @@ Multithreaded update of particles. Particles are updated by block or simultaneou
 - `de`: differential evolution object
 - `group`: a vector of interacting particles (e.g. chains)
 """
+# function p_update!(model, de, groups)
+#     seeds = rand(UInt, length(groups))
+#     if de.blocking_on(de)
+#         Threads.@threads for g in 1:de.n_groups
+#             group = block_update!(model, de, groups[g], seeds[g])
+#         end
+#         return groups
+#     else
+#         Threads.@threads for g in 1:de.n_groups
+#             group = mutate_or_crossover!(model, de, groups[g], seeds[g])
+#         end
+#         return groups
+#     end
+# end
+
 function p_update!(model, de, groups)
     seeds = rand(UInt, length(groups))
     if de.blocking_on(de)
-        Threads.@threads for g in 1:de.n_groups
-            group = block_update!(model, de, groups[g], seeds[g])
-        end
+        TX.map(
+                g -> block_update!(model, de, groups[g], seeds[g]),
+            1:de.n_groups)
         return groups
     else
-        Threads.@threads for g in 1:de.n_groups
-            group = mutate_or_crossover!(model, de, groups[g], seeds[g])
-        end
+        TX.map(
+                g -> mutate_or_crossover!(model, de, groups[g], seeds[g]),
+            1:de.n_groups)
         return groups
     end
 end

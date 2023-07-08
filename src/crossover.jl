@@ -281,6 +281,8 @@ Selects base particle θb with probability proportional to weight.
 function select_base(group)
     w = map(x -> x.weight, group)
     θ = exp.(w) / sum(exp.(w))
+    # if numberical error occurs, select the worst particle index (lower is worse)
+    θ = any(isnan, θ) ? w : θ
     p = sample(group, Weights(θ))
     return p
 end
