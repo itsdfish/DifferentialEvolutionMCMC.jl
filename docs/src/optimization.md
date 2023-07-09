@@ -1,6 +1,7 @@
 ```@setup optimization_setup
 using DifferentialEvolutionMCMC
 using DifferentialEvolutionMCMC: minimize!
+using Distributions
 using Random 
 Random.seed!(6845)
 

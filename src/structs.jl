@@ -18,8 +18,7 @@
         evaluate_fitness! = compute_posterior!, 
         sample = sample,
         blocking_on = x -> false,
-        blocks = [false]
-    )
+        blocks = [false])
 
 Differential Evolution MCMC object.
 
@@ -35,31 +34,21 @@ Differential Evolution MCMC object.
 - `σ=.05`: standard deviation of noise added to parameters for mutation.
 - `κ=1.0`: recombination with probability (1-κ) during crossover.
 - `θsnooker=0`: sample along line x_i - z. 0.1 is recommended if > 0.
-- `n_initial`: initial number of samples from the prior distribution when `sample=resample`. 10 times the number of parameters
-is a typical value
+- `n_initial`: initial number of samples from the prior distribution when `sample=resample`. 10 times the number of parameters is a typical value
 - `bounds`: a vector of tuples for lower and upper bounds of each parameter
 - `iter`: current iteration
-- `generate_proposal`: a function that generates proposals. Default is the two mode proposal described in
-Turner et al. 2012. You can also choose `fixed_gamma`, `variable_gamma` (see help) or pass a custom function
-- `update_particle!`: a function for updating the particle with a proposal value. Default: `mh_update!`, which uses the 
-Metropolis-Hastings rule.
-- `evaluate_fitness!`: a function for evaluating the fitness of a posterior. The default is to compute the posterior loglikelihood with 
- `compute_posterior!`. Select `evaluate_fun!` for optimization rather than MCMC sampling.
-- `sample`: a function for sampling particles during the crossover step. The default `sample` uses current particle
-parameter values whereas `resample` samples from the history of accepted values for each particle. Np must 3 or greater 
-when using `resample`.
-- `blocking_on = x -> false`: a function that indicates whether block updating is used on each iteration. The function requires optimization_tests
-arguement for the DE sampler object and must return a true or false value. 
-- `blocks`: a vector of boolean vectors indicating which parameters to update. Each sub-vector represents a 
-block and each element in the sub-vector indicates which parameters are updated within the block. For example, [[true,false],[false,true]]
-indicates that the parameter in the first position is updated on the first block and the parameter in the second position is updated on the 
-second block. If a parameter is a vector or matrix, they are nested within the block sub-vector. 
+- `generate_proposal`: a function that generates proposals. Default is the two mode proposal described in Turner et al. 2012. You can also choose `fixed_gamma`, `variable_gamma` (see help) or pass a custom function
+- `update_particle!`: a function for updating the particle with a proposal value. Default: `mh_update!`, which uses the Metropolis-Hastings rule.
+- `evaluate_fitness!`: a function for evaluating the fitness of a posterior. The default is to compute the posterior loglikelihood with `compute_posterior!`. Select `evaluate_fun!` for optimization rather than MCMC sampling.
+- `sample`: a function for sampling particles during the crossover step. The default `sample` uses current particle parameter values whereas `resample` samples from the history of accepted values for each particle. Np must 3 or greater when using `resample`.
+- `blocking_on = x -> false`: a function that indicates whether block updating is used on each iteration. The function requires optimization_tests arguement for the DE sampler object and must return a true or false value. 
+- `blocks`: a vector of boolean vectors indicating which parameters to update. Each sub-vector represents a block and each element in the sub-vector indicates which parameters are updated within the block. For example, [[true,false],[false,true]] indicates that the parameter in the first position is updated on the first block and the parameter in the second position is updated on the second block. If a parameter is a vector or matrix, they are nested within the block sub-vector. 
 
 # References
 
 * Ter Braak, C. J. A Markov Chain Monte Carlo version of the genetic algorithm Differential Evolution: easy Bayesian computing for real parameter spaces.
 
-* Ter Braak, Cajo JF, and Jasper A. Vrugt. "Differential evolution Markov chain with snooker updater and fewer chains." Statistics and Computing 18.4 (2008): 435-446
+* Ter Braak, Cajo JF, and Jasper A. Vrugt. Differential evolution Markov chain with snooker updater and fewer chains. Statistics and Computing 18.4 (2008): 435-446
 
 * Turner, B. M., Sederberg, P. B., Brown, S. D., & Steyvers, M. (2013). A method for efficiently sampling from distributions with correlated dimensions. Psychological methods, 18(3), 368.
 
@@ -143,6 +132,19 @@ function DE(;
 end
 
 """
+    DEModel{F,L,T,S} <: AbstractModel where {F <: Function,L,T,S}
+
+A model object containing the log likelihood function and prior distributions.
+
+# Fields
+
+- `prior_loglike::L`: log likelihood of posterior sample. A function must be defined for `sample`, but not for `optimize`.
+- `loglike::F`: a log likelihood function for Bayesian parameter estimation or an objective function for optimization. 
+- `sample_prior::S`: a function for initial values. Typically, a prior distribution is ideal.
+- `names::T`: parameter names
+
+# Constructor
+
     function DEModel(
         args...; 
         prior_loglike = nothing, 
@@ -150,18 +152,17 @@ end
         names, 
         sample_prior, 
         data, 
-        kwargs...
-    )
+        kwargs...)
 
-A model object containing the log likelihood function and prior distributions.
+
+# Arguments 
+
+- `args...`: optional positional arguments for `loglike`
 
 # Keywords
 
-- `args...`: optional positional arguments for `loglike`
-- `prior_loglike=nothing`: log likelihood of posterior sample. A function must be 
-define for `sample`, but not for `optimize`.
-- `loglike`: a log likelihood function for Bayesian parameter estimation or an objective function for 
-optimization. 
+- `prior_loglike=nothing`: log likelihood of posterior sample. A function must be defined for `sample`, but not for `optimize`.
+- `loglike`: a log likelihood function for Bayesian parameter estimation or an objective function for optimization. 
 - `sample_prior`: a function for initial values. Typically, a prior distribution is ideal.
 - `names`: parameter names
 - `kwargs...`: optional keyword arguments for `loglike`
@@ -180,14 +181,13 @@ function DEModel(
         names, 
         sample_prior, 
         data, 
-        kwargs...
-    )
+        kwargs...)
+
     return DEModel(
         x -> prior_loglike(x...), 
         x -> loglike(data, args..., x...; kwargs...),
         sample_prior, 
-        names
-    )
+        names)
 end
 
 """
@@ -195,12 +195,11 @@ end
 
 # Fields 
 
-- `θ`: a vector of parameters
-- `samples`: a 2-dimensional array containing all acccepted proposals
-- `accept`: proposal acceptance. 1: accept, 0: reject
-- `weight`: particle weight based on model fit (currently posterior log likelihood)
-- `lp`: a vector of log posterior probabilities associated with each accepted proposal
-- `id`: particle id
+- `Θ::Vector{T}`: a vector of parameters
+- `accept::Vector{Bool}`: proposal acceptance. 1: accept, 0: reject
+- `weight::Float64`: particle weight based on model fit (currently posterior log likelihood)
+- `lp::Vector{Float64}`: a vector of log posterior probabilities associated with each accepted proposal
+- `id::Int`: particle id
 """
 mutable struct Particle{T}
     Θ::Vector{T}

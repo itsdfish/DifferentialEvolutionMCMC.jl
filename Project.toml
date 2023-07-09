@@ -26,6 +26,7 @@ ProgressMeter = "1.2"
 SafeTestsets = "0.0.1, 0.1"
 SequentialSamplingModels = "0.1.0"
 StatsBase = "0.32,0.33, 0.34"
+ThreadsX = "0.1.0"
 Turing = "0.20,0.21,0.22.0,0.23.0,0.24.0,0.25.0,0.26.0"
 julia = "1"
 
