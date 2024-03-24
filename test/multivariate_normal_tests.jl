@@ -16,7 +16,7 @@
     function sample_prior()
         μ = rand(Normal(0, 1), n_μ)
         σ = rand(truncated(Cauchy(0, 1), 0, Inf))
-        return as_union([μ,σ])
+        return as_union([μ, σ])
     end
 
     # returns prior log likelihood
@@ -33,15 +33,15 @@
     end
 
     # upper and lower bounds of parameters
-    bounds = ((-Inf,Inf),(0.0,Inf))
+    bounds = ((-Inf, Inf), (0.0, Inf))
     # parameter names 
-    names = (:μ,:σ)
+    names = (:μ, :σ)
 
     # model object
-    model = DEModel(; 
-        sample_prior, 
-        prior_loglike, 
-        loglike, 
+    model = DEModel(;
+        sample_prior,
+        prior_loglike,
+        loglike,
         data,
         names
     )
@@ -49,22 +49,22 @@
     # DEMCMC sampler 
     de = DE(;
         sample_prior,
-        bounds, 
+        bounds,
         sample = resample,
-        burnin = 5000, 
+        burnin = 5000,
         n_initial = (n_μ + 1) * 4,
         Np = 3,
         n_groups = 1,
-        θsnooker = 0.1,
+        θsnooker = 0.1
     )
     # sample from the posterior distribution 
     n_iter = 50_000
-    chains = sample(model, de, MCMCThreads(), n_iter, progress=true)
-    sds = describe(chains)[1][1:n_μ,:std]
-    means = describe(chains)[1][1:n_μ,:mean]
-    @test all(x -> isapprox(x, 0.1; atol = .01), sds)
-    @test all(x -> isapprox(x, 0.0; atol = .3), means)
-    @test std(means) ≈ 0.1 atol = .01
-    data_means = mean(data, dims=2)
-    @test cor(data_means, means)[1] > .98
+    chains = sample(model, de, MCMCThreads(), n_iter, progress = true)
+    sds = describe(chains)[1][1:n_μ, :std]
+    means = describe(chains)[1][1:n_μ, :mean]
+    @test all(x -> isapprox(x, 0.1; atol = 0.01), sds)
+    @test all(x -> isapprox(x, 0.0; atol = 0.3), means)
+    @test std(means) ≈ 0.1 atol = 0.01
+    data_means = mean(data, dims = 2)
+    @test cor(data_means, means)[1] > 0.98
 end

@@ -16,13 +16,21 @@ Samples from the posterior distribution.
 - `progress=false`: show progress of sampler
 - `kwargs...`: optional keyword arguments
 """
-sample(model::DEModel, de::DE, n_iter::Int; progress=false, kwargs...) = _sample(model::DEModel, de::DE, n_iter::Int; progress, stepfun=step!, kwargs...)
+sample(model::DEModel, de::DE, n_iter::Int; progress = false, kwargs...) =
+    _sample(model::DEModel, de::DE, n_iter::Int; progress, stepfun = step!, kwargs...)
 
-function _sample(model::DEModel, de::DE, n_iter::Int; progress=false, stepfun=step!, kwargs...)
+function _sample(
+    model::DEModel,
+    de::DE,
+    n_iter::Int;
+    progress = false,
+    stepfun = step!,
+    kwargs...
+)
     meter = Progress(n_iter)
     # initialize particles based on prior distribution
     groups = sample_init(model, de, n_iter)
-    for iter in 1:n_iter
+    for iter = 1:n_iter
         de.iter = iter + de.n_initial
         # explicitly pass groups so parallel works
         groups = stepfun(model, de, groups)
@@ -51,8 +59,15 @@ the mutation and crossover steps.
 - `progress=false`: show progress of sampler
 - `kwargs...`: optional keyword arguments
 """
-function sample(model::DEModel, de::DE, ::MCMCThreads, n_iter::Int; progress=false, kwargs...)
-    _sample(model::DEModel, de::DE, n_iter::Int; progress, stepfun=pstep!, kwargs...)
+function sample(
+    model::DEModel,
+    de::DE,
+    ::MCMCThreads,
+    n_iter::Int;
+    progress = false,
+    kwargs...
+)
+    _sample(model::DEModel, de::DE, n_iter::Int; progress, stepfun = pstep!, kwargs...)
 end
 
 """
@@ -121,13 +136,13 @@ function p_update!(model, de, groups)
     seeds = rand(UInt, length(groups))
     if de.blocking_on(de)
         TX.map(
-                g -> block_update!(model, de, groups[g], seeds[g]),
-            1:de.n_groups)
+            g -> block_update!(model, de, groups[g], seeds[g]),
+            1:(de.n_groups))
         return groups
     else
         TX.map(
-                g -> mutate_or_crossover!(model, de, groups[g], seeds[g]),
-            1:de.n_groups)
+            g -> mutate_or_crossover!(model, de, groups[g], seeds[g]),
+            1:(de.n_groups))
         return groups
     end
 end
@@ -214,19 +229,23 @@ function bundle_samples(model::DEModel, de::DE, groups, n_iter)
     n_parms = length(all_names)
     n_names = length(model.names)
     v = fill(0.0, Ns, n_parms, Np)
-    for (c,p) in enumerate(particles)
-        for s in 1:Ns
+    for (c, p) in enumerate(particles)
+        for s = 1:Ns
             sΔ = s + offset
             temp = Float64[]
-            for ni in 1:n_names
-                push!(temp, de.samples[sΔ,ni,c]...)
+            for ni = 1:n_names
+                push!(temp, de.samples[sΔ, ni, c]...)
             end
             push!(temp, p.accept[sΔ], p.lp[sΔ])
-            v[s,:,c] = temp'
+            v[s, :, c] = temp'
         end
     end
-    chains = Chains(v, all_names, (parameters = [model.names...],
-        internals = ["acceptance", "lp"]))
+    chains = Chains(
+        v,
+        all_names,
+        (parameters = [model.names...],
+            internals = ["acceptance", "lp"])
+    )
     return chains
 end
 
@@ -244,7 +263,9 @@ Creates vectors of particles and samples initial parameter values from priors.
 function sample_init(model::DEModel, de::DE, n_iter)
     de.samples = initialize_samples(de, model, n_iter)
     id = 0
-    groups = [[init_particle(de, model, id+=1, n_iter) for p in 1:de.Np]
-        for c in 1:de.n_groups]
+    groups = [
+        [init_particle(de, model, id += 1, n_iter) for p = 1:(de.Np)]
+        for c = 1:(de.n_groups)
+    ]
     return groups
 end

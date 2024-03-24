@@ -12,7 +12,7 @@ function migration!(de, groups)
     # select groups for migration
     sub_group = select_groups(de, groups)
     # select particles within groups for migration
-    p_idx,particles = select_particles(sub_group)
+    p_idx, particles = select_particles(sub_group)
     # swap the particles so that p1->pn, p2 -> p1,..., pn -> pn-1
     shift_particles!(sub_group, p_idx, particles)
     return nothing
@@ -29,8 +29,8 @@ Select a subset of groups for migration and return their indices.
 - `groups`: groups of particles
 """
 function select_groups(de, groups)
-    N = rand(2:de.n_groups)
-    sub_group = sample(groups, N, replace=false)
+    N = rand(2:(de.n_groups))
+    sub_group = sample(groups, N, replace = false)
     return sub_group
 end
 
@@ -47,10 +47,10 @@ function select_particles(sub_group)
     Ng = length(sub_group)
     p_idx = fill(0, Ng)
     particles = Vector{eltype(sub_group[1])}(undef, Ng)
-    for (i,g) in enumerate(sub_group)
-        p_idx[i],particles[i] = select_particle(g)
+    for (i, g) in enumerate(sub_group)
+        p_idx[i], particles[i] = select_particle(g)
     end
-    return p_idx,particles
+    return p_idx, particles
 end
 
 """
@@ -66,7 +66,7 @@ function select_particle(group)
     θ = exp.(-w) / sum(exp.(-w))
     # if numberical error occurs, select the worst particle index (lower is worse)
     idx = any(isnan, θ) ? findmin(w)[2] : sample(1:length(group), Weights(θ))
-    return idx,group[idx]
+    return idx, group[idx]
 end
 
 """
@@ -85,7 +85,7 @@ function shift_particles!(sub_group, p_idx, particles)
     # perform a circular shift
     particles = circshift(particles, 1)
     # assign shifted particles to the new chain
-    for (g,j,p) in zip(sub_group, p_idx, particles)
+    for (g, j, p) in zip(sub_group, p_idx, particles)
         g[j] = p
     end
 end
