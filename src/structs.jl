@@ -65,42 +65,41 @@ Differential Evolution MCMC object.
     σ::Float64
     κ::Float64
     θsnooker::Float64
-    bounds
+    bounds::Any
     n_initial::Int64
     iter::Int64
-    generate_proposal
-    update_particle!
-    evaluate_fitness!
-    sample
-    blocking_on
-    blocks
-    samples
+    generate_proposal::Any
+    update_particle!::Any
+    evaluate_fitness!::Any
+    sample::Any
+    blocking_on::Any
+    blocks::Any
+    samples::Any
 end
 
 function DE(;
-        n_groups = 4, 
-        priors = nothing, 
-        Np, 
-        burnin = 1000, 
-        discard_burnin = true, 
-        α = .1,
-        β = .1, 
-        ϵ = .001,
-        σ = .05, 
-        κ = 1.0, 
-        θsnooker = 0.0, 
-        bounds, 
-        n_initial = 0, 
-        generate_proposal = random_gamma, 
-        update_particle! = mh_update!,
-        evaluate_fitness! = compute_posterior!, 
-        sample = sample,
-        blocking_on = x -> false,
-        blocks = [false],
-        sample_prior,
-    )
-
-    if  (n_groups == 1) && (α > 0)
+    n_groups = 4,
+    priors = nothing,
+    Np,
+    burnin = 1000,
+    discard_burnin = true,
+    α = 0.1,
+    β = 0.1,
+    ϵ = 0.001,
+    σ = 0.05,
+    κ = 1.0,
+    θsnooker = 0.0,
+    bounds,
+    n_initial = 0,
+    generate_proposal = random_gamma,
+    update_particle! = mh_update!,
+    evaluate_fitness! = compute_posterior!,
+    sample = sample,
+    blocking_on = x -> false,
+    blocks = [false],
+    sample_prior
+)
+    if (n_groups == 1) && (α > 0)
         α = 0.0
         @warn "migration probability α > 0 but n_groups == 1. Changing α = 0.0"
     end
@@ -108,22 +107,22 @@ function DE(;
     samples = initialize_samples(sample_prior)
 
     return DE(
-        n_groups, 
-        Np, 
-        burnin, 
-        discard_burnin, 
-        α, 
-        β, 
-        ϵ, 
-        σ, 
-        κ, 
-        θsnooker, 
-        bounds, 
-        n_initial, 
-        1, 
-        generate_proposal, 
-        update_particle!, 
-        evaluate_fitness!, 
+        n_groups,
+        Np,
+        burnin,
+        discard_burnin,
+        α,
+        β,
+        ϵ,
+        σ,
+        κ,
+        θsnooker,
+        bounds,
+        n_initial,
+        1,
+        generate_proposal,
+        update_particle!,
+        evaluate_fitness!,
         sample,
         blocking_on,
         blocks,
@@ -167,7 +166,7 @@ A model object containing the log likelihood function and prior distributions.
 - `names`: parameter names
 - `kwargs...`: optional keyword arguments for `loglike`
 """
-struct DEModel{F,L,T,S} <: AbstractModel where {F <: Function,L,T,S}
+struct DEModel{F, L, T, S} <: AbstractModel where {F <: Function, L, T, S}
     prior_loglike::L
     loglike::F
     sample_prior::S
@@ -175,18 +174,17 @@ struct DEModel{F,L,T,S} <: AbstractModel where {F <: Function,L,T,S}
 end
 
 function DEModel(
-        args...; 
-        prior_loglike = nothing, 
-        loglike, 
-        names, 
-        sample_prior, 
-        data, 
-        kwargs...)
-
+    args...;
+    prior_loglike = nothing,
+    loglike,
+    names,
+    sample_prior,
+    data,
+    kwargs...)
     return DEModel(
-        x -> prior_loglike(x...), 
+        x -> prior_loglike(x...),
         x -> loglike(data, args..., x...; kwargs...),
-        sample_prior, 
+        sample_prior,
         names)
 end
 
@@ -212,14 +210,14 @@ end
 Base.broadcastable(x::Particle) = Ref(x)
 
 function Particle(;
-        Θ=[.0],
-        accept = Bool[], 
-        weight = 0.0,
-        id = 0
-    )
+    Θ = [0.0],
+    accept = Bool[],
+    weight = 0.0,
+    id = 0
+)
     return Particle(Θ, accept, weight, Float64[], id)
 end
 
-function Particle(Θ::Number, accept, weight, lp, id) 
+function Particle(Θ::Number, accept, weight, lp, id)
     Particle([Θ], accept, weight, lp, id)
 end

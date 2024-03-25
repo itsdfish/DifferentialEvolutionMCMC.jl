@@ -30,7 +30,7 @@ Performs crossover step for for a given particle pt
 function crossover!(model, de, group, pt::Particle)
     if rand() ≤ de.θsnooker
         # generate the proposal
-        proposal,pz = snooker_update!(de, pt, group)
+        proposal, pz = snooker_update!(de, pt, group)
         log_adj = adjust_loglike(pt, proposal, pz)
         # compute the weight of the proposal: prior loglikelihood + data loglikelihood
         de.evaluate_fitness!(de, model, proposal)
@@ -80,7 +80,7 @@ Performs crossover step for a given particle pt.
 function crossover!(model, de, group, pt::Particle, block)
     if rand() ≤ de.θsnooker
         # generate the proposal
-        proposal,pz = snooker_update!(de, pt, group)
+        proposal, pz = snooker_update!(de, pt, group)
         reset!(proposal, pt, block)
         log_adj = adjust_loglike(pt, proposal, pz)
         # compute the weight of the proposal: prior loglikelihood + data loglikelihood
@@ -111,16 +111,17 @@ Sample a random particle from previously accepted values for snooker update.
 - `replace`: sample with replacement if true
 """
 function resample(de, group, n, replace)
-    P′ = Vector{eltype(group)}(undef,n)
+    P′ = Vector{eltype(group)}(undef, n)
     mx_idx = de.iter - 1
     idx = sample_indices(de.samples, mx_idx, n; replace)
-    for i in 1:n 
-        P′[i] = Particle(;Θ=de.samples[idx[i][1],:,idx[i][2]])
+    for i = 1:n
+        P′[i] = Particle(; Θ = de.samples[idx[i][1], :, idx[i][2]])
     end
     return P′
 end
 
-sample_indices(x, ub, n; replace) = @views sample(CartesianIndices(x[1:ub,1,:]), n; replace)
+sample_indices(x, ub, n; replace) =
+    @views sample(CartesianIndices(x[1:ub, 1, :]), n; replace)
 
 """
     sample(de::DE, group_diff, n, replace) 
@@ -134,7 +135,7 @@ Sample a random particle.
 - `n`: number of particles to sample
 - `replace`: sample with replacement if true
 """
-function sample(de::DE, group_diff, n, replace) 
+function sample(de::DE, group_diff, n, replace)
     return sample(group_diff, n; replace)
 end
 
@@ -156,11 +157,11 @@ function random_gamma(de, Pt, group)
     # group without Pb
     group_diff = setdiff(group, [Pt])
     # sample particles for θm and θn
-    Pm,Pn = de.sample(de, group_diff, 2, false) 
+    Pm, Pn = de.sample(de, group_diff, 2, false)
     # sample gamma weights
-    γ₁ = rand(Uniform(.5, 1))
+    γ₁ = rand(Uniform(0.5, 1))
     # set γ₂ = 0 after burnin
-    γ₂ = de.iter > de.burnin ? 0.0 : rand(Uniform(.5, 1))
+    γ₂ = de.iter > de.burnin ? 0.0 : rand(Uniform(0.5, 1))
     # sample noise for each parameter
     b = Uniform(-de.ϵ, de.ϵ)
     # compute proposal value
@@ -185,7 +186,7 @@ where γ = 2.38.
 function fixed_gamma(de, Pt, group)
     group_diff = setdiff(group, [Pt])
     # sample particles for θm and θn
-    Pm,Pn = de.sample(de, group_diff, 2, false) 
+    Pm, Pn = de.sample(de, group_diff, 2, false)
     # sample gamma weights
     γ = 2.38
     # sample noise for each parameter
@@ -213,7 +214,7 @@ function variable_gamma(de, Pt, group)
     Np = sum(length.(Pt.Θ))
     group_diff = setdiff(group, [Pt])
     # sample particles for θm and θn
-    Pm,Pn = de.sample(de, group_diff, 2, false) 
+    Pm, Pn = de.sample(de, group_diff, 2, false)
     γ = 2.38 / sqrt(2 * Np)
     # sample noise for each parameter
     b = Uniform(-de.ϵ, de.ϵ)
@@ -237,7 +238,7 @@ Performs snooker update during crossover
 """
 function snooker_update!(de, Pt, group)
     # sample 3 particles without replacement
-    Pz,Pm,Pn = de.sample(de, group, 3, false) 
+    Pz, Pm, Pn = de.sample(de, group, 3, false)
     # difference vector for old value and random particle z
     Pd = Pt - Pz
     # project Pm on to Pd 
@@ -252,7 +253,7 @@ function snooker_update!(de, Pt, group)
     Θp = Pt + γ * (Pr1 - Pr2) + b
     # reset each parameter to previous value with probability (1-κ)
     recombination!(de, Pt, Θp)
-    return Θp,Pz
+    return Θp, Pz
 end
 
 """
@@ -300,11 +301,11 @@ Resets parameters of proposal to previous value with probability
 function recombination!(de, pt::Particle, pp::Particle)
     de.κ == 1.0 ? (return nothing) : nothing
     N = length(pt.Θ)
-    for i in 1:N
+    for i = 1:N
         if isa(pp.Θ[i], Array)
             recombination!(de, pt.Θ[i], pp.Θ[i])
         else
-            pp.Θ[i] = rand() <= (1 - de.κ) ?  pt.Θ[i] : pp.Θ[i]
+            pp.Θ[i] = rand() <= (1 - de.κ) ? pt.Θ[i] : pp.Θ[i]
         end
     end
     return nothing
@@ -313,7 +314,7 @@ end
 # Handles elements within an array
 function recombination!(de, Θt, Θp)
     N = length(Θt)
-    for i in 1:N
+    for i = 1:N
         Θp[i] = rand() <= (1 - de.κ) ? Θt[i] : Θp[i]
     end
     return nothing
@@ -335,17 +336,17 @@ values are reset.
 reset!(p1::Particle, p2::Particle, idx) = reset!(p1.Θ, p2.Θ, idx)
 
 function reset!(Θ1, Θ2, idx)
-    for i in 1:length(Θ1)
+    for i = 1:length(Θ1)
         reset!(Θ1, Θ2, idx[i], i)
     end
     return nothing
 end
 
 function reset!(Θ1, Θ2, idx::Bool, i)
-    !idx ? Θ1[i] = Θ2[i] : nothing 
+    !idx ? Θ1[i] = Θ2[i] : nothing
     return nothing
 end
 
-function reset!(Θ1, Θ2, idx::Array{Bool,N}, i) where {N}
+function reset!(Θ1, Θ2, idx::Array{Bool, N}, i) where {N}
     return reset!(Θ1[i], Θ2[i], idx)
 end
