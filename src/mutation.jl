@@ -11,7 +11,7 @@ a small number.
 - `group`: a group of particles
 """
 function mutation!(model, de, group)
-    @unpack σ,bounds = de
+    @unpack σ, bounds = de
     noise = Normal(0.0, σ)
     for pt in group
         # add noise to each parameter
