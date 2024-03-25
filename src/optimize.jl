@@ -14,13 +14,21 @@ Finds optimal set of parameters.
 - `progress=false`: show progress of algorithm
 - `kwargs...`: optional keyword arguments
 """
-optimize(model::DEModel, de::DE, n_iter::Int; progress=false, kwargs...) = _optimize(model::DEModel, de::DE, n_iter::Int; progress, stepfun=step!, kwargs...)
+optimize(model::DEModel, de::DE, n_iter::Int; progress = false, kwargs...) =
+    _optimize(model::DEModel, de::DE, n_iter::Int; progress, stepfun = step!, kwargs...)
 
-function _optimize(model::DEModel, de::DE, n_iter::Int; progress=false, stepfun=step!, kwargs...)
+function _optimize(
+    model::DEModel,
+    de::DE,
+    n_iter::Int;
+    progress = false,
+    stepfun = step!,
+    kwargs...
+)
     meter = Progress(n_iter)
     # initialize particles based on prior distribution
     groups = sample_init(model, de, n_iter)
-    for iter in 1:n_iter
+    for iter = 1:n_iter
         de.iter = iter
         # explicitly pass groups so parallel works
         groups = stepfun(model, de, groups)
@@ -46,6 +54,13 @@ Finds optimal set of parameters.
 - `progress=false`: show progress of algorithm
 - `kwargs...`: optional keyword arguments
 """
-function optimize(model::DEModel, de::DE, ::MCMCThreads, n_iter::Int; progress=false, kwargs...)
-    _optimize(model::DEModel, de::DE, n_iter::Int; progress, stepfun=pstep!, kwargs...)
+function optimize(
+    model::DEModel,
+    de::DE,
+    ::MCMCThreads,
+    n_iter::Int;
+    progress = false,
+    kwargs...
+)
+    _optimize(model::DEModel, de::DE, n_iter::Int; progress, stepfun = pstep!, kwargs...)
 end

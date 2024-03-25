@@ -27,8 +27,8 @@ end
 # likelihood function 
 function loglike(data, μβ0, σβ0, β0, σ)
     LL = 0.0
-    for s in 1:length(data)
-        μ = μβ0 + β0[s] 
+    for s = 1:length(data)
+        μ = μβ0 + β0[s]
         y = data[s] .- μ
         LL += sum(logpdf.(Normal(0, σ), y))
     end
@@ -47,19 +47,19 @@ n_subj = 10
 σβ0 = 1.0
 # subject intercept deviations
 β0 = rand(Normal(0.0, σβ0), n_subj)
-σ = .5
+σ = 0.5
 
 sim(μβ0, β0, σ, n_data) = rand(Normal(μβ0 + β0, σ), n_data)
-data = [sim(μβ0, β0[i], σ, n_data) for i in 1:n_subj]
+data = [sim(μβ0, β0[i], σ, n_data) for i = 1:n_subj]
 ###################################################################################
 #                             configure sampler
 ###################################################################################
 # parameter bounds
 bounds = (
-    (-Inf,Inf),
-    (0.0,Inf),
-    (-Inf,Inf),
-    (0.0,Inf),
+    (-Inf, Inf),
+    (0.0, Inf),
+    (-Inf, Inf),
+    (0.0, Inf)
 )
 
 # parameter names
@@ -67,18 +67,18 @@ names = (:μβ0, :σβ0, :β0, :σ)
 
 # model object 
 model = DEModel(;
-    sample_prior, 
-    prior_loglike, 
-    loglike, 
+    sample_prior,
+    prior_loglike,
+    loglike,
     data,
     names
 )
 
 blocks = [
-    [true,false,fill(false, n_subj),false],
-    [false,true,fill(false, n_subj),false],
-    [false,false,fill(false, n_subj),true],
-    [false,false,fill(true, n_subj),false],
+    [true, false, fill(false, n_subj), false],
+    [false, true, fill(false, n_subj), false],
+    [false, false, fill(false, n_subj), true],
+    [false, false, fill(true, n_subj), false]
 ]
 blocks = as_union.(blocks)
 
@@ -88,24 +88,23 @@ blocks = as_union.(blocks)
 # push!(blocks, subj_blocks...)
 # blocks = as_union.(blocks)
 
-
 # use block updating on each iteration 
 blocking_on = x -> true
 
 # sampler object
 de = DE(;
     sample_prior,
-    bounds, 
+    bounds,
     #sample = resample,
-    burnin = 500, 
+    burnin = 500,
     #n_initial = (n_subj + 1) * 4,
     Np = n_subj * 2 + 4,
     #n_groups = 2,
     #θsnooker = 0.1,
     blocking_on,
     blocks,
-    α=.5,
-    generate_proposal = variable_gamma,
+    α = 0.5,
+    generate_proposal = variable_gamma
 )
 ###################################################################################
 #                             estimate parameters

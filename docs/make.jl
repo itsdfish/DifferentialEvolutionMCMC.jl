@@ -7,17 +7,17 @@ makedocs(
         assets = [
             asset(
                 "https://fonts.googleapis.com/css?family=Montserrat|Source+Code+Pro&display=swap",
-                class = :css,
-            ),
+                class = :css
+            )
         ],
-        collapselevel = 1,
+        collapselevel = 1
     ),
     modules = [DifferentialEvolutionMCMC],
     pages = ["home" => "index.md",
-    "examples" => ["Binomial Model" => "binomial.md",
-                "Gaussian Model" => "gaussian.md",
-                "Optimization" => "optimization.md"],
-    "api" => "api.md"]
+        "examples" => ["Binomial Model" => "binomial.md",
+            "Gaussian Model" => "gaussian.md",
+            "Optimization" => "optimization.md"],
+        "api" => "api.md"]
 )
 
 deploydocs(

@@ -16,7 +16,7 @@ data = rand(MvNormal(μs, 1.0 * I), n_d)
 function sample_prior()
     μ = rand(Normal(0, 1), n_μ)
     σ = rand(truncated(Cauchy(0, 1), 0, Inf))
-    return as_union([μ,σ])
+    return as_union([μ, σ])
 end
 
 # returns prior log likelihood
@@ -33,15 +33,15 @@ function loglike(data, μs, σ)
 end
 
 # upper and lower bounds of parameters
-bounds = ((-Inf,Inf),(0.0,Inf))
+bounds = ((-Inf, Inf), (0.0, Inf))
 # parameter names 
-names = (:μ,:σ)
+names = (:μ, :σ)
 
 # model object
-model = DEModel(; 
-    sample_prior, 
-    prior_loglike, 
-    loglike, 
+model = DEModel(;
+    sample_prior,
+    prior_loglike,
+    loglike,
     data,
     names
 )
@@ -49,14 +49,14 @@ model = DEModel(;
 # DEMCMC sampler 
 de = DE(;
     sample_prior,
-    bounds, 
+    bounds,
     sample = resample,
-    burnin = 5000, 
+    burnin = 5000,
     n_initial = (n_μ + 1) * 4,
     Np = 3,
     n_groups = 1,
-    θsnooker = 0.1,
+    θsnooker = 0.1
 )
 # sample from the posterior distribution 
 n_iter = 50_000
-chains = sample(model, de, MCMCThreads(), n_iter, progress=true)
+chains = sample(model, de, MCMCThreads(), n_iter, progress = true)
